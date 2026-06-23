@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "u6dKyS5DOw8azOdr+QSg+5dR361zVOt7XzDIp+pQvdU=",
+  "Source": "PadelRent.Api",
+  "BasePath": "_content/PadelRent.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
