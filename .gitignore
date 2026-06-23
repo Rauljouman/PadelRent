@@ -1,0 +1,21 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+
+# Config local con secretos
+appsettings.Development.json
+.env
+.env.local
+
+# Node / React
+node_modules/
+dist/
+.vite/
+
+# Logs
+*.log
+
+# VS Code opcional
+.vscode/

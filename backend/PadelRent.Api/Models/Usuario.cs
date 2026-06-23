@@ -4,9 +4,11 @@ namespace PadelRent.Api.Models;
 
 public class Usuario
 {
+    public int id { get; set; }
+
     [Required]
     [MaxLength(100)]
-    public string Nombre {get;set;} = string.Empty
+    public string Nombre {get;set;} = string.Empty;
 
     [Required]
     [MaxLength(150)]

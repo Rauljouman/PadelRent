@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\PadelRent.Api.props" />
-</Project>
