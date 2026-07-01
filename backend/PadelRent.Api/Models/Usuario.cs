@@ -4,7 +4,7 @@ namespace PadelRent.Api.Models;
 
 public class Usuario
 {
-    public int id { get; set; }
+    public int Id { get; set; }
 
     [Required]
     [MaxLength(100)]

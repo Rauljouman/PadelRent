@@ -83,6 +83,17 @@ public class ReservasController : ControllerBase
         _context.Reservas.Add(reserva);
         await _context.SaveChangesAsync();
 
-        return Ok(reserva);
+        return Ok(new
+        {
+            reserva.Id,
+            reserva.UsuarioId,
+            reserva.PistaId,
+            reserva.Fecha,
+            reserva.HoraInicio,
+            reserva.HoraFin,
+            reserva.DuracionMinutos,
+            reserva.PrecioPista,
+            reserva.Estado
+        });;
     }
 }
