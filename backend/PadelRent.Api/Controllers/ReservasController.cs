@@ -96,4 +96,37 @@ public class ReservasController : ControllerBase
             reserva.Estado
         });;
     }
+
+    [HttpPut("{id}/cancelar")]
+    public async Task<IActionResult> CancelarReserva(int id)
+    {
+        var reserva = await _context.Reservas.FindAsync(id);
+
+        if (reserva == null)
+        {
+            return NotFound("La reserva no existe.");
+        }
+
+        if(reserva.Estado == EstadoReserva.Cancelada)
+        {
+            return BadRequest("La reserva ya esta hecha.");
+        }
+
+        reserva.Estado = EstadoReserva.Cancelada;
+        reserva.FechaCancelacion = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            reserva.Id,
+            reserva.UsuarioId,
+            reserva.PistaId,
+            reserva.Fecha,
+            reserva.HoraInicio,
+            reserva.HoraFin,
+            reserva.Estado,
+            reserva.FechaCancelacion
+        });
+    }
 }
