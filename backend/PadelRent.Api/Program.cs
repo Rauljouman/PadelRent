@@ -1,12 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using PadelRent.Api.Data;
 using PadelRent.Api.Data.Seed;
+using PadelRent.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+builder.Services.AddScoped<JwtService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
