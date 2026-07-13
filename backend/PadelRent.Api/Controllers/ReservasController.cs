@@ -4,6 +4,8 @@ using PadelRent.Api.Data;
 using PadelRent.Api.DTOs;
 using PadelRent.Api.Enums;
 using PadelRent.Api.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace PadelRent.Api.Controllers;
 
@@ -18,9 +20,51 @@ public class ReservasController : ControllerBase
         _context = context;
     }
 
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> GetReservas()
+    {
+        var reservas = await _context.Reservas
+            .Include(r => r.Usuario)
+            .Include(r => r.Pista)
+            .OrderBy(r => r.Fecha)
+            .ThenBy(r => r.HoraInicio)
+            .Select(r => new ReservaResponseDto
+            {
+                Id = r.Id,
+
+                UsuarioId = r.UsuarioId,
+                UsuarioNombre = r.Usuario.Nombre,
+
+                PistaId = r.PistaId,
+                PistaNombre = r.Pista.Nombre,
+
+                Fecha = r.Fecha,
+                HoraInicio = r.HoraInicio,
+                HoraFin = r.HoraFin,
+
+                DuracionMinutos = r.DuracionMinutos,
+                PrecioPista = r.PrecioPista,
+
+                Estado = r.Estado.ToString()
+            })
+            .ToListAsync();
+
+        return Ok(reservas);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CrearReserva(CrearReservaDto dto)
     {
+        var usuarioidClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (usuarioidClaim == null)
+        {
+            return Unauthorized("No se pudo dientificar al usuario.");
+        }
+
+        var usuarioId = int.Parse(usuarioidClaim); 
+
         if (dto.DuracionMinutos != 60 && dto.DuracionMinutos != 90)
         {
             return BadRequest("La duración debe ser de 60 o 90 minutos.");
@@ -48,7 +92,7 @@ public class ReservasController : ControllerBase
             return BadRequest("La pista no está activa.");
         }
 
-        var usuarioExiste = await _context.Usuarios.AnyAsync(u => u.Id == dto.UsuarioId);
+        var usuarioExiste = await _context.Usuarios.AnyAsync(u => u.Id == usuarioId);
 
         if (!usuarioExiste)
         {
@@ -70,7 +114,7 @@ public class ReservasController : ControllerBase
 
         var reserva = new Reserva
         {
-            UsuarioId = dto.UsuarioId,
+            UsuarioId = usuarioId,
             PistaId = dto.PistaId,
             Fecha = dto.Fecha,
             HoraInicio = dto.HoraInicio,
@@ -109,7 +153,7 @@ public class ReservasController : ControllerBase
 
         if(reserva.Estado == EstadoReserva.Cancelada)
         {
-            return BadRequest("La reserva ya esta hecha.");
+            return BadRequest("La reserva ya esta cancelada.");
         }
 
         reserva.Estado = EstadoReserva.Cancelada;
@@ -120,7 +164,6 @@ public class ReservasController : ControllerBase
         return Ok(new
         {
             reserva.Id,
-            reserva.UsuarioId,
             reserva.PistaId,
             reserva.Fecha,
             reserva.HoraInicio,
