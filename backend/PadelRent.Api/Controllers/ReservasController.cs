@@ -20,6 +20,59 @@ public class ReservasController : ControllerBase
         _context = context;
     }
 
+    private int? GetUsuarioId()
+    {
+        var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (usuarioIdClaim == null)
+        {
+            return null;
+        }
+
+        return int.Parse(usuarioIdClaim);
+    }
+
+    [Authorize]
+    [HttpGet("mis-reservas")]
+    public async Task<IActionResult> GetMisReservas()
+    {
+        var usuarioId = GetUsuarioId();
+
+        if (usuarioId == null)
+        {
+            return Unauthorized("No se pudo identificar al usuario.");
+        }
+
+        var reservas = await _context.Reservas
+            .Include(r => r.Usuario)
+            .Include(r => r.Pista)
+            .Where(r => r.UsuarioId == usuarioId)
+            .OrderBy(r => r.Fecha)
+            .ThenBy(r => r.HoraInicio)
+            .Select(r => new ReservaResponseDto
+            {
+                Id = r.Id,
+
+                UsuarioId = r.UsuarioId,
+                UsuarioNombre = r.Usuario.Nombre,
+
+                PistaId = r.PistaId,
+                PistaNombre = r.Pista.Nombre,
+
+                Fecha = r.Fecha,
+                HoraInicio = r.HoraInicio,
+                HoraFin = r.HoraFin,
+
+                DuracionMinutos = r.DuracionMinutos,
+                PrecioPista = r.PrecioPista,
+
+                Estado = r.Estado.ToString()
+            })
+            .ToListAsync();
+
+        return Ok(reservas);
+    }
+
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetReservas()
@@ -141,14 +194,27 @@ public class ReservasController : ControllerBase
         });;
     }
 
+    [Authorize]
     [HttpPut("{id}/cancelar")]
     public async Task<IActionResult> CancelarReserva(int id)
     {
+        var usuarioId = GetUsuarioId();
+
+        if (usuarioId == null)
+        {
+            return Unauthorized("No se pudo identificar al usuario.");
+        }
+
         var reserva = await _context.Reservas.FindAsync(id);
 
         if (reserva == null)
         {
             return NotFound("La reserva no existe.");
+        }
+
+        if (reserva.UsuarioId != usuarioId)
+        {
+            return Forbid();
         }
 
         if(reserva.Estado == EstadoReserva.Cancelada)
@@ -168,7 +234,7 @@ public class ReservasController : ControllerBase
             reserva.Fecha,
             reserva.HoraInicio,
             reserva.HoraFin,
-            reserva.Estado,
+            Estado = reserva.Estado.ToString(),
             reserva.FechaCancelacion
         });
     }
