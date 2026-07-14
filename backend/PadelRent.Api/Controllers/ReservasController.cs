@@ -173,7 +173,7 @@ public class ReservasController : ControllerBase
             HoraInicio = dto.HoraInicio,
             HoraFin = horaFin,
             DuracionMinutos = dto.DuracionMinutos,
-            PrecioPista = dto.DuracionMinutos == 60 ? 20 : 28,
+            PrecioPista = dto.DuracionMinutos == 60 ? 20 : 30,
             Estado = EstadoReserva.Pendiente
         };
 
