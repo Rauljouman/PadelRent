@@ -19,10 +19,7 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const login = async (email, password) => {
-    const data = await authApi.login({
-      email,
-      password,
-    });
+    const data = await authApi.login({ email, password });
 
     localStorage.setItem("padelrent_token", data.token);
     localStorage.setItem(
