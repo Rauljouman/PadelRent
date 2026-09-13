@@ -51,9 +51,14 @@ public class AuthController : ControllerBase
             return BadRequest("La contraseña debe tener entre 6 y 100 caracteres.");
         }
 
-        if (!string.IsNullOrWhiteSpace(telefono) && telefono.Length > 20)
+        if (!string.IsNullOrWhiteSpace(telefono) && telefono.Length != 9)
         {
-            return BadRequest("El teléfono no puede superar los 20 caracteres.");
+            return BadRequest("El teléfono debe tener exactamente 9 dígitos.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(telefono) && !telefono.All(char.IsDigit))
+        {
+            return BadRequest("El teléfono solo puede contener números.");
         }
 
         var emailExiste = await _context.Usuarios.AnyAsync(u => u.Email == email);
