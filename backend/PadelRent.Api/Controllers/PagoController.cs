@@ -42,7 +42,7 @@ public class PagosController : ControllerBase
         
         if (usuarioId == null)
         {
-            return Unauthorized("No se ha podido iudetificar al usuario.");
+            return Unauthorized("No se ha podido identificar al usuario.");
         }
         
         var reserva = await _context.Reservas.FindAsync(reservaId);
@@ -60,6 +60,28 @@ public class PagosController : ControllerBase
         if (reserva.Estado != EstadoReserva.Pendiente)
         {
             return BadRequest("Solo se pueden pagar reservas pendientes");
+        }
+
+        if (reserva.FechaExpiracionPago != null &&
+            reserva.FechaExpiracionPago <= DateTime.UtcNow)
+        {
+            reserva.Estado = EstadoReserva.Cancelada;
+            reserva.FechaCancelacion = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return BadRequest("El tiempo para pagar esta reserva ha expirado.");    
+        }
+
+        var pagoPendienteExiste = await _context.Pagos
+            .AnyAsync(p =>
+                p.ReservaId == reserva.Id &&
+                p.Estado == EstadoPago.Pendiente
+            );
+
+        if (pagoPendienteExiste)
+        {
+            return BadRequest("Ya existe un pago pendiente para esta reserva.");
         }
 
         var importeCentimos = (long)(reserva.PrecioPista * 100);
@@ -153,7 +175,7 @@ public class PagosController : ControllerBase
         }
 
         var pago = await _context.Pagos
-            .Include(p => p.Reserva)
+            .Include(p => p.Reserva).ThenInclude(r => r.Usuario)
             .FirstOrDefaultAsync(p => p.StripeSessionId == sessionId);
 
         if (pago == null)
@@ -166,6 +188,19 @@ public class PagosController : ControllerBase
             return Forbid();
         }
 
+        if (pago.Reserva.FechaExpiracionPago != null &&
+            pago.Reserva.FechaExpiracionPago <= DateTime.UtcNow &&
+            pago.Estado != EstadoPago.Completado)
+        {
+            pago.Estado = EstadoPago.Fallido;
+            pago.Reserva.Estado = EstadoReserva.Cancelada;
+            pago.Reserva.FechaCancelacion = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return BadRequest("El tiempo para confirmar el pago de esta reserva ha expirado.");
+        }
+
         if (pago.Estado == EstadoPago.Completado)
         {
             return BadRequest("Este pago ya fue confirmado.");
@@ -176,6 +211,31 @@ public class PagosController : ControllerBase
         pago.FechaPago = DateTime.UtcNow;
 
         pago.Reserva.Estado = EstadoReserva.Pagada;
+
+        var facturaExiste = await _context.FacturasSimples
+    .AnyAsync(f => f.ReservaId == pago.ReservaId);
+
+    if (!facturaExiste)
+    {
+        var total = pago.Importe;
+        var subtotal = Math.Round(total / 1.21m, 2);
+        var iva = total - subtotal;
+
+        var factura = new FacturaSimple
+        {
+            ReservaId = pago.ReservaId,
+            Numero = $"FAC-{DateTime.UtcNow:yyyyMMddHHmmss}-{pago.ReservaId}",
+            FechaEmision = DateTime.UtcNow,
+            ClienteNombre = pago.Reserva.Usuario.Nombre,
+            ClienteEmail = pago.Reserva.Usuario.Email,
+            Subtotal = subtotal,
+            Iva = iva,
+            Total = total,
+            Estado = EstadoFactura.Emitida
+        };
+
+        _context.FacturasSimples.Add(factura);
+    }
 
         await _context.SaveChangesAsync();
 

@@ -29,6 +29,8 @@ public class Reserva
     public DateTime? FechaCancelacion { get; set; }
 
     public Pago? Pago { get; set; }
+    
+    public DateTime? FechaExpiracionPago { get; set; }
 
     public FacturaSimple? FacturaSimple { get; set; }
 }

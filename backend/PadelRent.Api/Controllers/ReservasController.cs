@@ -125,8 +125,14 @@ public class ReservasController : ControllerBase
 
         var horaApertura = new TimeOnly(10, 0);
         var horaCierre = new TimeOnly(21, 0);
-
         var horaFin = dto.HoraInicio.AddMinutes(dto.DuracionMinutos);
+
+        var fechaHoraInicio = dto.Fecha.ToDateTime(dto.HoraInicio);
+
+        if (fechaHoraInicio <= DateTime.Now)
+        {
+            return BadRequest("No se puede reservar una hora que ya ha pasado.");
+        }
 
         if (dto.HoraInicio < horaApertura || horaFin > horaCierre)
         {
@@ -143,6 +149,11 @@ public class ReservasController : ControllerBase
         if (!pista.Activa)
         {
             return BadRequest("La pista no está activa.");
+        }
+
+        if (fechaHoraInicio <= DateTime.Now)
+        {
+            return BadRequest("No se puede reservar una hora que ya ha pasado.");
         }
 
         var usuarioExiste = await _context.Usuarios.AnyAsync(u => u.Id == usuarioId);
@@ -174,7 +185,8 @@ public class ReservasController : ControllerBase
             HoraFin = horaFin,
             DuracionMinutos = dto.DuracionMinutos,
             PrecioPista = dto.DuracionMinutos == 60 ? 20 : 30,
-            Estado = EstadoReserva.Pendiente
+            Estado = EstadoReserva.Pendiente,
+            FechaExpiracionPago = DateTime.UtcNow.AddMinutes(10)
         };
 
         _context.Reservas.Add(reserva);
@@ -190,7 +202,9 @@ public class ReservasController : ControllerBase
             reserva.HoraFin,
             reserva.DuracionMinutos,
             reserva.PrecioPista,
-            reserva.Estado
+            reserva.Estado,
+            reserva.FechaExpiracionPago
+        
         });;
     }
 

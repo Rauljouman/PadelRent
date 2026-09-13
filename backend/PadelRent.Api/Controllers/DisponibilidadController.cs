@@ -33,11 +33,35 @@ public class DisponibilidadController : ControllerBase
 
         var pistasActivas = await _context.Pistas.Where(p => p.Activa).ToListAsync();
 
-        var reservasDelDia = await _context.Reservas.Where(r => r.Fecha == fecha && r.Estado != EstadoReserva.Cancelada).ToListAsync();
+        var ahora = DateTime.UtcNow;
+
+        var reservasDelDia = await _context.Reservas
+            .Where(r =>
+                r.Fecha == fecha &&
+                r.Estado != EstadoReserva.Cancelada &&
+                (
+                    r.Estado == EstadoReserva.Pagada ||
+                    (
+                        r.Estado == EstadoReserva.Pendiente &&
+                        r.FechaExpiracionPago != null &&
+                        r.FechaExpiracionPago > ahora
+                    )
+                )
+            )
+            .ToListAsync();
 
         while (horaActual.AddMinutes(duracion) <= horaCierre)
         {
+
             var horaFin = horaActual.AddMinutes(duracion);
+
+            var fechaHoraInicio = fecha.ToDateTime(horaActual);
+
+            if (fechaHoraInicio <= DateTime.Now)
+            {
+                horaActual = horaActual.AddHours(1);
+                continue;
+            }
 
             var pistasDisponibles = pistasActivas
                 .Where(p => !reservasDelDia.Any(r =>
