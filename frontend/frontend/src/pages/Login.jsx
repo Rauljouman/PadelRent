@@ -11,6 +11,7 @@ export default function Login() {
     password: "",
   });
 
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -22,14 +23,14 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      setLoading(true);
       await login(form.email, form.password);
-      alert("Sesión iniciada correctamente");
-      navigate("/dashboard");
+      navigate("/disponibilidad");
     } catch (error) {
-      alert(error.message || "Error al iniciar sesión");
+      setError(error.message || "Email o contraseña incorrectos");
     } finally {
       setLoading(false);
     }
@@ -38,6 +39,12 @@ export default function Login() {
   return (
     <div style={{ padding: 40, maxWidth: 400, margin: "0 auto" }}>
       <h1>Iniciar sesión</h1>
+
+      {error && (
+        <div style={{ color: "red", marginBottom: 12 }}>
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div>
@@ -70,7 +77,11 @@ export default function Login() {
       </form>
 
       <p>
-        ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
+        ¿No tienes cuenta? <Link to="/register">Crear cuenta</Link>
+      </p>
+
+      <p>
+        <Link to="/forgot-password">He olvidado mi contraseña</Link>
       </p>
     </div>
   );
