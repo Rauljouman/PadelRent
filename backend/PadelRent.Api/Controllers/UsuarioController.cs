@@ -74,13 +74,26 @@ public class UsuariosController : ControllerBase
             return NotFound("El usuario no existe.");
         }
 
-        if (string.IsNullOrWhiteSpace(dto.Nombre))
+        var nombre = dto.Nombre.Trim();
+        var telefono = dto.Telefono?.Trim();
+
+        if (string.IsNullOrWhiteSpace(nombre))
         {
             return BadRequest("El nombre es obligatorio.");
         }
 
-        usuario.Nombre = dto.Nombre;
-        usuario.Telefono = dto.Telefono;
+        if (nombre.Length > 100)
+        {
+            return BadRequest("El nombre no puede superar los 100 caracteres.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(telefono) && telefono.Length > 20)
+        {
+            return BadRequest("El teléfono no puede superar los 20 caracteres.");
+        }
+
+        usuario.Nombre = nombre;
+        usuario.Telefono = telefono;
 
         await _context.SaveChangesAsync();
 

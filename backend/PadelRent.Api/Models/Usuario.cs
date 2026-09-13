@@ -23,4 +23,8 @@ public class Usuario
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
     public List<Reserva> Reservas { get; set; } = new();
+
+    public string? PasswordResetToken { get; set; }
+
+    public DateTime? PasswordResetTokenExpiracion { get; set; }
 }
