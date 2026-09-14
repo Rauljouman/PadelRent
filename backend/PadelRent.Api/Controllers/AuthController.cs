@@ -14,11 +14,15 @@ public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly JwtService _jwtService;
+    private readonly EmailService _emailService;
+    private readonly IConfiguration _configuration;
 
-    public AuthController(AppDbContext context, JwtService jwtService)
+    public AuthController(AppDbContext context, JwtService jwtService, EmailService emailService, IConfiguration configuration)
     {
         _context = context;
         _jwtService = jwtService;
+        _emailService = emailService;
+        _configuration = configuration;
     }
 
     [HttpPost("register")]
@@ -148,28 +152,47 @@ public class AuthController : ControllerBase
         {
             return Ok(new
             {
-                Mensaje = "Si el email existe, se generará un enlace de recuperación."
+                mensaje = "Si el email existe, recibirás instrucciones para recuperar tu contraseña."
             });
         }
 
-        var tokenBytes = RandomNumberGenerator.GetBytes(32);
-        var token = Convert.ToBase64String(tokenBytes)
-            .Replace("+", "")
-            .Replace("/", "")
-            .Replace("=", "");
+        var tokenBytes = RandomNumberGenerator.GetBytes(64);
+        var token = Convert.ToBase64String(tokenBytes);
 
         usuario.PasswordResetToken = token;
-        usuario.PasswordResetTokenExpiracion = DateTime.UtcNow.AddMinutes(15);
+        usuario.PasswordResetTokenExpiracion = DateTime.UtcNow.AddMinutes(30);
 
         await _context.SaveChangesAsync();
 
-        var resetLink = $"http://localhost:5173/reset-password?token={token}";
+        var frontendUrl = _configuration["Email:FrontendUrl"];
+
+        if (string.IsNullOrWhiteSpace(frontendUrl))
+            {
+                return BadRequest("La URL del frontend no está configurada.");
+            }
+
+        var resetLink = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(token)}";
+
+        var contenidoHtml = $@"
+            <h2>Recuperar contraseña</h2>
+            <p>Has solicitado cambiar tu contraseña en PadelRent.</p>
+            <p>Pulsa en el siguiente enlace para crear una nueva contraseña:</p>
+            <p>
+                <a href='{resetLink}'>Cambiar contraseña</a>
+            </p>
+            <p>Este enlace caduca en 30 minutos.</p>
+            <p>Si no has solicitado este cambio, puedes ignorar este mensaje.</p>
+        ";
+
+        await _emailService.EnviarEmailAsync(
+            usuario.Email,
+            "Recuperar contraseña - PadelRent",
+            contenidoHtml
+        );
 
         return Ok(new
         {
-            Mensaje = "Enlace de recuperación generado correctamente.",
-            ResetLink = resetLink,
-            Token = token
+            mensaje = "Si el email existe, recibirás instrucciones para recuperar tu contraseña."
         });
     }
 
