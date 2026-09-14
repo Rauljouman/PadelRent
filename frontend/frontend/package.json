@@ -24,5 +24,13 @@
     "eslint-plugin-react-refresh": "^0.5.6",
     "globals": "^17.12.0",
     "vite": "^8.3.0"
+  },
+  "Email": {
+    "Host": "smtp.gmail.com",
+    "Port": 587,
+    "Username": "TU_EMAIL@gmail.com",
+    "Password": "TU_PASSWORD_O_APP_PASSWORD",
+    "From": "TU_EMAIL@gmail.com",
+    "FrontendUrl": "http://localhost:5173"
   }
 }

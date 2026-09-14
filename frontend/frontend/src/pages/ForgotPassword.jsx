@@ -5,25 +5,25 @@ import { authApi } from "../api/authApi";
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [resetLink, setResetLink] = useState("");
-  const [message, setMessage] = useState("");
+  const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const solicitarReset = async (e) => {
     e.preventDefault();
 
     setLoading(true);
     setError("");
-    setMessage("");
+    setMensaje("");
     setResetLink("");
 
     try {
       const data = await authApi.forgotPassword({ email });
 
-      setMessage(data.mensaje || "Solicitud creada correctamente.");
+      setMensaje(data.mensaje || "Si el email existe, recibirás instrucciones para recuperar tu contraseña.");
       setResetLink(data.resetLink || "");
     } catch (error) {
-      setError(error.message || "No se pudo solicitar el cambio de contraseña");
+      setError(error.message || "No se pudo generar el enlace de recuperación.");
     } finally {
       setLoading(false);
     }
@@ -33,16 +33,22 @@ export default function ForgotPassword() {
     <div style={{ padding: 40, maxWidth: 450, margin: "0 auto" }}>
       <h1>Recuperar contraseña</h1>
 
-      <p>Introduce tu email y se generará un enlace de recuperación de prueba.</p>
+      <p>Introduce tu email para generar un enlace de recuperación.</p>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {message && <p style={{ color: "green" }}>{message}</p>}
+      {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
 
       {resetLink && (
-        <div style={{ border: "1px solid #ddd", padding: 12, marginBottom: 16 }}>
+        <div
+          style={{
+            border: "1px solid #ddd",
+            padding: 12,
+            borderRadius: 8,
+            marginBottom: 16,
+          }}
+        >
           <p>
-            <strong>Enlace demo:</strong>
+            <strong>Enlace de recuperación:</strong>
           </p>
 
           <Link to={resetLink.replace("http://localhost:5173", "")}>
@@ -51,7 +57,7 @@ export default function ForgotPassword() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={solicitarReset}>
         <label>Email</label>
 
         <input
@@ -63,7 +69,7 @@ export default function ForgotPassword() {
         />
 
         <button type="submit" disabled={loading}>
-          {loading ? "Enviando..." : "Generar enlace"}
+          {loading ? "Generando..." : "Generar enlace"}
         </button>
       </form>
 

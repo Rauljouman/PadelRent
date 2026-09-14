@@ -13,13 +13,13 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const cambiarPassword = async (e) => {
     e.preventDefault();
 
     setError("");
 
     if (!token) {
-      setError("El enlace no tiene token.");
+      setError("El enlace no es válido.");
       return;
     }
 
@@ -44,7 +44,7 @@ export default function ResetPassword() {
       alert("Contraseña cambiada correctamente.");
       navigate("/login");
     } catch (error) {
-      setError(error.message || "No se pudo cambiar la contraseña");
+      setError(error.message || "No se pudo cambiar la contraseña.");
     } finally {
       setLoading(false);
     }
@@ -54,15 +54,17 @@ export default function ResetPassword() {
     <div style={{ padding: 40, maxWidth: 450, margin: "0 auto" }}>
       <h1>Nueva contraseña</h1>
 
+      <p>Introduce tu nueva contraseña.</p>
+
       {!token && (
         <p style={{ color: "red" }}>
-          El enlace no es válido porque no tiene token.
+          El enlace no es válido.
         </p>
       )}
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={cambiarPassword}>
         <label>Nueva contraseña</label>
 
         <input
