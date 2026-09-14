@@ -16,6 +16,8 @@ import Receipt from "./pages/Receipt";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 function Home() {
   const { isAuthenticated } = useAuth();
@@ -125,6 +127,9 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -139,7 +139,10 @@ export default function Register() {
             checked={accepted}
             onChange={(e) => setAccepted(e.target.checked)}
           />{" "}
-          Acepto los términos y la política de privacidad
+          Acepto los{" "}
+            <Link to="/terms">términos y condiciones</Link>
+            {" "}y la{" "}
+            <Link to="/privacy">política de privacidad</Link>
         </label>
 
         <button type="submit" disabled={loading}>
