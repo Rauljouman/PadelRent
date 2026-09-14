@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import AppLayout from "./components/AppLayout";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -34,25 +35,6 @@ function Home() {
   );
 }
 
-function Dashboard() {
-  const { user, logout } = useAuth();
-
-  return (
-    <div style={{ padding: 40 }}>
-      <h1>PadelRent</h1>
-
-      <p>Bienvenido, {user?.nombre}</p>
-
-      <nav style={{ display: "flex", gap: 12, marginBottom: 24 }}>
-        <Link to="/disponibilidad">Disponibilidad</Link>
-        <Link to="/mis-reservas">Mis reservas</Link>
-      </nav>
-
-      <button onClick={logout}>Cerrar sesión</button>
-    </div>
-  );
-}
-
 function AppRoutes() {
   return (
     <Routes>
@@ -62,20 +44,17 @@ function AppRoutes() {
 
       <Route path="/register" element={<Register />} />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route
         path="/disponibilidad"
         element={
           <ProtectedRoute>
-            <Availability />
+            <AppLayout>
+              <Availability />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -84,7 +63,9 @@ function AppRoutes() {
         path="/reservar"
         element={
           <ProtectedRoute>
-            <BookingConfirm />
+            <AppLayout>
+              <BookingConfirm />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -93,7 +74,9 @@ function AppRoutes() {
         path="/mis-reservas"
         element={
           <ProtectedRoute>
-            <MyBookings />
+            <AppLayout>
+              <MyBookings />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -102,7 +85,9 @@ function AppRoutes() {
         path="/pago/exito"
         element={
           <ProtectedRoute>
-            <PaymentSuccess />
+            <AppLayout>
+              <PaymentSuccess />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -111,7 +96,9 @@ function AppRoutes() {
         path="/pago/cancel"
         element={
           <ProtectedRoute>
-            <PaymentCancel />
+            <AppLayout>
+              <PaymentCancel />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -120,14 +107,12 @@ function AppRoutes() {
         path="/comprobante/:id"
         element={
           <ProtectedRoute>
-            <Receipt />
+            <AppLayout>
+              <Receipt />
+            </AppLayout>
           </ProtectedRoute>
         }
       />
-
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-
-      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
