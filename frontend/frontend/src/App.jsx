@@ -15,6 +15,7 @@ import PaymentCancel from "./pages/PaymentCancel";
 import Receipt from "./pages/Receipt";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Profile from "./pages/Profile";
 
 function Home() {
   const { isAuthenticated } = useAuth();
@@ -109,6 +110,17 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <Receipt />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/perfil"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Profile />
             </AppLayout>
           </ProtectedRoute>
         }

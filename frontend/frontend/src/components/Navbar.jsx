@@ -27,6 +27,7 @@ export default function Navbar() {
       <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
         <Link to="/disponibilidad">Disponibilidad</Link>
         <Link to="/mis-reservas">Mis reservas</Link>
+        <Link to="/perfil">Mi perfil</Link>
 
         <span>{user?.nombre}</span>
 
