@@ -63,6 +63,16 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const updateUser = (updatedUser) => {
+    const newUser = {
+      ...user,
+      ...updatedUser,
+    };
+
+    localStorage.setItem("padelrent_user", JSON.stringify(newUser));
+    setUser(newUser);
+  };
+
   const register = async (formData) => {
     const data = await authApi.register(formData);
 
@@ -104,6 +114,7 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
+        updateUser,
         isAuthenticated,
       }}
     >
