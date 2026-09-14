@@ -46,11 +46,10 @@ public class ReservasController : ControllerBase
         var ahora = DateTime.UtcNow;
 
         var reservas = await _context.Reservas
-            .Include(r => r.Pista)
             .Include(r => r.Usuario)
+            .Include(r => r.Pista)
             .Where(r => r.UsuarioId == usuarioId.Value)
-            .OrderByDescending(r => r.Fecha)
-            .ThenByDescending(r => r.HoraInicio)
+            .OrderByDescending(r => r.FechaCreacion)
             .ToListAsync();
 
         var reservasExpiradas = reservas
