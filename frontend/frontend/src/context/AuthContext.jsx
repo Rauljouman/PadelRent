@@ -3,20 +3,42 @@ import { authApi } from "../api/authApi";
 
 const AuthContext = createContext();
 
+function tokenExpirado(token) {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const fechaExpiracion = payload.exp * 1000;
+
+    return Date.now() >= fechaExpiracion;
+  } catch {
+    return true;
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("padelrent_token"));
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("padelrent_user");
+ useEffect(() => {
+  const storedToken = localStorage.getItem("padelrent_token");
+  const storedUser = localStorage.getItem("padelrent_user");
 
-    if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-
+  if (storedToken && tokenExpirado(storedToken)) {
+    localStorage.removeItem("padelrent_token");
+    localStorage.removeItem("padelrent_user");
+    setToken(null);
+    setUser(null);
     setLoading(false);
-  }, [token]);
+    return;
+  }
+
+  if (storedToken && storedUser) {
+    setToken(storedToken);
+    setUser(JSON.parse(storedUser));
+  }
+
+  setLoading(false);
+}, []);
 
   const login = async (email, password) => {
     const data = await authApi.login({ email, password });

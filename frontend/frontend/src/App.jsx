@@ -11,6 +11,9 @@ import BookingConfirm from "./pages/BookingConfirm";
 import MyBookings from "./pages/MyBookings";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
+import Receipt from "./pages/Receipt";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function Home() {
   const { isAuthenticated } = useAuth();
@@ -112,6 +115,19 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/comprobante/:id"
+        element={
+          <ProtectedRoute>
+            <Receipt />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

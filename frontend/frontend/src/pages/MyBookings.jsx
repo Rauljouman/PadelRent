@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
-import { reservasApi } from "../api/reservasApi";
 import { Link } from "react-router-dom";
+import { reservasApi } from "../api/reservasApi";
 
 export default function MyBookings() {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const cargarReservas = async () => {
+    setLoading(true);
+    setError("");
+
     try {
-      setLoading(true);
       const data = await reservasApi.getMisReservas();
       setReservas(data);
     } catch (error) {
-      alert(error.message || "Error al cargar reservas");
+      setError(error.message || "No se pudieron cargar las reservas");
     } finally {
       setLoading(false);
     }
@@ -22,36 +25,43 @@ export default function MyBookings() {
     cargarReservas();
   }, []);
 
-  const cancelar = async (id) => {
+  const cancelarReserva = async (id) => {
+    const confirmar = confirm("¿Seguro que quieres cancelar esta reserva?");
+
+    if (!confirmar) return;
+
     try {
       await reservasApi.cancelarReserva(id);
-      alert("Reserva cancelada");
-      cargarReservas();
+      await cargarReservas();
     } catch (error) {
-      alert(error.message || "Error al cancelar reserva");
+      alert(error.message || "No se pudo cancelar la reserva");
     }
   };
 
-  const pagar = async (id) => {
+  const pagarReserva = async (id) => {
     try {
       const checkout = await reservasApi.crearCheckoutSession(id);
       window.location.href = checkout.url;
     } catch (error) {
-      alert(error.message || "Error al iniciar pago");
+      alert(error.message || "No se pudo iniciar el pago");
     }
   };
-
-  if (loading) {
-    return <p style={{ padding: 40 }}>Cargando reservas...</p>;
-  }
 
   return (
     <div style={{ padding: 40 }}>
       <h1>Mis reservas</h1>
 
-      <Link to="/dashboard">Volver</Link>
+      <p>
+        <Link to="/disponibilidad">Volver a disponibilidad</Link>
+      </p>
 
-      {reservas.length === 0 && <p>No tienes reservas.</p>}
+      {loading && <p>Cargando reservas...</p>}
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {!loading && reservas.length === 0 && (
+        <p>No tienes reservas todavía.</p>
+      )}
 
       {reservas.map((reserva) => (
         <div
@@ -59,32 +69,53 @@ export default function MyBookings() {
           style={{
             border: "1px solid #ddd",
             padding: 16,
-            marginTop: 16,
             borderRadius: 8,
+            marginBottom: 16,
           }}
         >
           <h3>{reserva.pistaNombre}</h3>
-          <p>Fecha: {reserva.fecha}</p>
+
           <p>
-            Hora: {reserva.horaInicio} - {reserva.horaFin}
+            <strong>Fecha:</strong> {reserva.fecha}
           </p>
-          <p>Duración: {reserva.duracionMinutos} minutos</p>
-          <p>Precio: {reserva.precioPista} €</p>
-          <p>Estado: {reserva.estado}</p>
+
+          <p>
+            <strong>Horario:</strong> {reserva.horaInicio} - {reserva.horaFin}
+          </p>
+
+          <p>
+            <strong>Duración:</strong> {reserva.duracionMinutos} minutos
+          </p>
+
+          <p>
+            <strong>Precio:</strong> {reserva.precioPista} €
+          </p>
+
+          <p>
+            <strong>Estado:</strong> {reserva.estado}
+          </p>
 
           {reserva.estado === "Pendiente" && (
             <>
-              <button onClick={() => pagar(reserva.id)}>Pagar</button>
-              <button onClick={() => cancelar(reserva.id)}>
+              <button onClick={() => pagarReserva(reserva.id)}>
+                Pagar
+              </button>
+
+              <button
+                onClick={() => cancelarReserva(reserva.id)}
+                style={{ marginLeft: 8 }}
+              >
                 Cancelar
               </button>
             </>
           )}
 
           {reserva.estado === "Pagada" && (
-            <Link to={`/comprobante/${reserva.id}`}>
-              Ver comprobante
-            </Link>
+            <p>
+              <Link to={`/comprobante/${reserva.id}`}>
+                Ver comprobante
+              </Link>
+            </p>
           )}
         </div>
       ))}
