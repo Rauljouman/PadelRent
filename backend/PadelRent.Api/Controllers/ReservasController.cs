@@ -40,37 +40,53 @@ public class ReservasController : ControllerBase
 
         if (usuarioId == null)
         {
-            return Unauthorized("No se pudo identificar al usuario.");
+            return Unauthorized("No se ha podido identificar al usuario.");
         }
 
+        var ahora = DateTime.UtcNow;
+
         var reservas = await _context.Reservas
-            .Include(r => r.Usuario)
             .Include(r => r.Pista)
-            .Where(r => r.UsuarioId == usuarioId)
-            .OrderBy(r => r.Fecha)
-            .ThenBy(r => r.HoraInicio)
-            .Select(r => new ReservaResponseDto
-            {
-                Id = r.Id,
-
-                UsuarioId = r.UsuarioId,
-                UsuarioNombre = r.Usuario.Nombre,
-
-                PistaId = r.PistaId,
-                PistaNombre = r.Pista.Nombre,
-
-                Fecha = r.Fecha,
-                HoraInicio = r.HoraInicio,
-                HoraFin = r.HoraFin,
-
-                DuracionMinutos = r.DuracionMinutos,
-                PrecioPista = r.PrecioPista,
-
-                Estado = r.Estado.ToString()
-            })
+            .Include(r => r.Usuario)
+            .Where(r => r.UsuarioId == usuarioId.Value)
+            .OrderByDescending(r => r.Fecha)
+            .ThenByDescending(r => r.HoraInicio)
             .ToListAsync();
 
-        return Ok(reservas);
+        var reservasExpiradas = reservas
+            .Where(r =>
+                r.Estado == EstadoReserva.Pendiente &&
+                r.FechaExpiracionPago != null &&
+                r.FechaExpiracionPago <= ahora)
+            .ToList();
+
+        foreach (var reserva in reservasExpiradas)
+        {
+            reserva.Estado = EstadoReserva.Cancelada;
+            reserva.FechaCancelacion = ahora;
+        }
+
+        if (reservasExpiradas.Any())
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        var resultado = reservas.Select(r => new ReservaResponseDto
+        {
+            Id = r.Id,
+            UsuarioId = r.UsuarioId,
+            UsuarioNombre = r.Usuario.Nombre,
+            PistaId = r.PistaId,
+            PistaNombre = r.Pista.Nombre,
+            Fecha = r.Fecha,
+            HoraInicio = r.HoraInicio,
+            HoraFin = r.HoraFin,
+            DuracionMinutos = r.DuracionMinutos,
+            PrecioPista = r.PrecioPista,
+            Estado = r.Estado.ToString()
+        }).ToList();
+
+        return Ok(resultado);
     }
 
     [Authorize]
