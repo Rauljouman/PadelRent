@@ -41,7 +41,7 @@ function Home() {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Availability />} />
 
       <Route path="/login" element={<Login />} />
 

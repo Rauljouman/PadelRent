@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Mail, Lock, Phone, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import AuthLayout from "../components/AuthLayout";
+import "../styles/Register.css";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -27,20 +30,21 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setError("");
 
     if (form.password !== form.confirmPassword) {
-      setError("Las contraseñas no coinciden");
+      setError("Las contraseñas no coinciden.");
       return;
     }
 
     if (!accepted) {
-      setError("Debes aceptar los términos y la política de privacidad");
+      setError("Debes aceptar los términos y la política de privacidad.");
       return;
     }
 
     if (!/^\d{9}$/.test(form.telefono)) {
-      setError("El teléfono debe tener exactamente 9 dígitos");
+      setError("El teléfono debe tener exactamente 9 dígitos.");
       return;
     }
 
@@ -56,103 +60,123 @@ export default function Register() {
 
       navigate("/disponibilidad");
     } catch (error) {
-      alert(error.message || "No se pudo crear la cuenta");
+      setError(error.message || "No se pudo crear la cuenta.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: 40, maxWidth: 400, margin: "0 auto" }}>
-      <h1>Crear cuenta</h1>
+    <AuthLayout
+      title="Crea tu cuenta"
+      subtitle="Regístrate para empezar a reservar."
+      footerText="¿Ya tienes cuenta?"
+      footerLinkText="Inicia sesión"
+      footerLinkTo="/login"
+    >
+      <form className="register-form" onSubmit={handleSubmit}>
+        {error && <div className="register-form__error">{error}</div>}
 
-      {error && (
-        <div style={{ color: "red", marginBottom: 12 }}>
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit}>
-        <div>
+        <div className="register-form__field">
           <label>Nombre</label>
-          <input
-            name="nombre"
-            value={form.nombre}
-            onChange={handleChange}
-            required
-            style={{ display: "block", width: "100%", marginBottom: 12 }}
-          />
+
+          <div className="register-form__input">
+            <User size={18} />
+            <input
+              name="nombre"
+              value={form.nombre}
+              onChange={handleChange}
+              placeholder="Tu nombre"
+              required
+            />
+          </div>
         </div>
 
-        <div>
+        <div className="register-form__field">
           <label>Email</label>
-          <input
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-            style={{ display: "block", width: "100%", marginBottom: 12 }}
-          />
+
+          <div className="register-form__input">
+            <Mail size={18} />
+            <input
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="tu@email.com"
+              required
+            />
+          </div>
         </div>
 
-        <div>
+        <div className="register-form__field">
           <label>Teléfono</label>
-          <input
-            name="telefono"
-            value={form.telefono}
-            onChange={handleChange}
-            required
-            maxLength={9}
-            placeholder="123456789"
-            style={{ display: "block", width: "100%", marginBottom: 12 }}
-          />
+
+          <div className="register-form__input">
+            <Phone size={18} />
+            <input
+              name="telefono"
+              value={form.telefono}
+              onChange={handleChange}
+              placeholder="600000000"
+              maxLength={9}
+              required
+            />
+          </div>
         </div>
 
-        <div>
+        <div className="register-form__field">
           <label>Contraseña</label>
-          <input
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            required
-            style={{ display: "block", width: "100%", marginBottom: 12 }}
-          />
+
+          <div className="register-form__input">
+            <Lock size={18} />
+            <input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              required
+            />
+          </div>
         </div>
 
-        <div>
+        <div className="register-form__field">
           <label>Repetir contraseña</label>
-          <input
-            name="confirmPassword"
-            type="password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            required
-            style={{ display: "block", width: "100%", marginBottom: 12 }}
-          />
+
+          <div className="register-form__input">
+            <Lock size={18} />
+            <input
+              name="confirmPassword"
+              type="password"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              placeholder="••••••••"
+              required
+            />
+          </div>
         </div>
 
-        <label style={{ display: "block", marginBottom: 12 }}>
+        <label className="register-form__checkbox">
           <input
             type="checkbox"
             checked={accepted}
             onChange={(e) => setAccepted(e.target.checked)}
-          />{" "}
-          Acepto los{" "}
-            <Link to="/terms">términos y condiciones</Link>
-            {" "}y la{" "}
-            <Link to="/privacy">política de privacidad</Link>
+          />
+
+          <span>
+            Acepto los <Link to="/terms">términos y condiciones</Link> y la{" "}
+            <Link to="/privacy">política de privacidad</Link>.
+          </span>
         </label>
 
-        <button type="submit" disabled={loading}>
+        <button
+          className="register-form__button"
+          type="submit"
+          disabled={loading}
+        >
           {loading ? "Creando..." : "Crear cuenta"}
         </button>
       </form>
-
-      <p>
-        ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
-      </p>
-    </div>
+    </AuthLayout>
   );
 }

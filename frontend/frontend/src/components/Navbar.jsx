@@ -1,5 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { CalendarDays, Ticket, User, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import logoPadelRent from "../assets/logo-padelrent.png";
+import "./Navbar.css";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -11,28 +14,45 @@ export default function Navbar() {
   };
 
   return (
-    <header
-      style={{
-        padding: "16px 40px",
-        borderBottom: "1px solid #ddd",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div>
-        <strong>PadelRent</strong>
+    <aside className="sidebar">
+      <div className="sidebar__top">
+        <div className="sidebar__logo">
+          <img
+            className="sidebar__logo-img"
+            src={logoPadelRent}
+            alt="PadelRent"
+          />
+        </div>
+
+        <nav className="sidebar__nav">
+          <NavLink to="/disponibilidad" className="sidebar__link">
+            <CalendarDays size={18} />
+            <span>Disponibilidad</span>
+          </NavLink>
+
+          <NavLink to="/mis-reservas" className="sidebar__link">
+            <Ticket size={18} />
+            <span>Mis reservas</span>
+          </NavLink>
+
+          <NavLink to="/perfil" className="sidebar__link">
+            <User size={18} />
+            <span>Perfil</span>
+          </NavLink>
+        </nav>
       </div>
 
-      <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
-        <Link to="/disponibilidad">Disponibilidad</Link>
-        <Link to="/mis-reservas">Mis reservas</Link>
-        <Link to="/perfil">Mi perfil</Link>
+      <div className="sidebar__bottom">
+        <div className="sidebar__user">
+          <strong>{user?.nombre}</strong>
+          <span>{user?.email}</span>
+        </div>
 
-        <span>{user?.nombre}</span>
-
-        <button onClick={cerrarSesion}>Cerrar sesión</button>
-      </nav>
-    </header>
+        <button className="sidebar__logout" onClick={cerrarSesion}>
+          <LogOut size={18} />
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+    </aside>
   );
 }

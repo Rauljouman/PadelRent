@@ -1,0 +1,30 @@
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  background: #f4f7f9;
+}
+
+.app-layout__content {
+  flex: 1;
+  padding: 36px 40px;
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* TABLET */
+@media (max-width: 1024px) {
+  .app-layout__content {
+    padding: 28px 28px;
+  }
+}
+
+/* MÓVIL */
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .app-layout__content {
+    padding: 22px 16px;
+  }
+}

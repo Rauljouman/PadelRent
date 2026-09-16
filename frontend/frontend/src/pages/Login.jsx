@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Mail, Lock } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import AuthLayout from "../components/AuthLayout";
+import "../styles/Login.css";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -23,6 +26,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setError("");
     setLoading(true);
 
@@ -37,52 +41,55 @@ export default function Login() {
   };
 
   return (
-    <div style={{ padding: 40, maxWidth: 400, margin: "0 auto" }}>
-      <h1>Iniciar sesión</h1>
+    <AuthLayout
+      title="Bienvenido de nuevo"
+      subtitle="Inicia sesión para reservar tu pista de pádel."
+      footerText="¿No tienes cuenta?"
+      footerLinkText="Regístrate"
+      footerLinkTo="/register"
+    >
+      <form className="login-form" onSubmit={handleSubmit}>
+        {error && <div className="login-form__error">{error}</div>}
 
-      {error && (
-        <div style={{ color: "red", marginBottom: 12 }}>
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit}>
-        <div>
+        <div className="login-form__field">
           <label>Email</label>
-          <input
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-            style={{ display: "block", width: "100%", marginBottom: 12 }}
-          />
+
+          <div className="login-form__input">
+            <Mail size={18} />
+            <input
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="tu@email.com"
+              required
+            />
+          </div>
         </div>
 
-        <div>
-          <label>Contraseña</label>
-          <input
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            required
-            style={{ display: "block", width: "100%", marginBottom: 12 }}
-          />
+        <div className="login-form__field">
+          <div className="login-form__label-row">
+            <label>Contraseña</label>
+            <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>
+          </div>
+
+          <div className="login-form__input">
+            <Lock size={18} />
+            <input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              required
+            />
+          </div>
         </div>
 
-        <button type="submit" disabled={loading}>
+        <button className="login-form__button" type="submit" disabled={loading}>
           {loading ? "Entrando..." : "Entrar"}
         </button>
       </form>
-
-      <p>
-        ¿No tienes cuenta? <Link to="/register">Crear cuenta</Link>
-      </p>
-
-      <p>
-        <Link to="/forgot-password">He olvidado mi contraseña</Link>
-      </p>
-    </div>
+    </AuthLayout>
   );
 }
