@@ -13,6 +13,9 @@ export default function Navbar() {
     navigate("/login");
   };
 
+  const getLinkClass = ({ isActive }) =>
+    isActive ? "sidebar__link sidebar__link--active" : "sidebar__link";
+
   return (
     <aside className="sidebar">
       <div className="sidebar__top">
@@ -25,17 +28,17 @@ export default function Navbar() {
         </div>
 
         <nav className="sidebar__nav">
-          <NavLink to="/disponibilidad" className="sidebar__link">
+          <NavLink to="/disponibilidad" className={getLinkClass}>
             <CalendarDays size={18} />
             <span>Disponibilidad</span>
           </NavLink>
 
-          <NavLink to="/mis-reservas" className="sidebar__link">
+          <NavLink to="/mis-reservas" className={getLinkClass}>
             <Ticket size={18} />
             <span>Mis reservas</span>
           </NavLink>
 
-          <NavLink to="/perfil" className="sidebar__link">
+          <NavLink to="/perfil" className={getLinkClass}>
             <User size={18} />
             <span>Perfil</span>
           </NavLink>
@@ -44,11 +47,11 @@ export default function Navbar() {
 
       <div className="sidebar__bottom">
         <div className="sidebar__user">
-          <strong>{user?.nombre}</strong>
-          <span>{user?.email}</span>
+          <strong>{user?.nombre || "Usuario"}</strong>
+          <span>{user?.email || "Sin email"}</span>
         </div>
 
-        <button className="sidebar__logout" onClick={cerrarSesion}>
+        <button className="sidebar__logout" type="button" onClick={cerrarSesion}>
           <LogOut size={18} />
           <span>Cerrar sesión</span>
         </button>

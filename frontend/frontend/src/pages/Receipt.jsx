@@ -1,6 +1,35 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import {
+  ArrowLeft,
+  CalendarDays,
+  CheckCircle2,
+  FileText,
+  Mail,
+  ReceiptText,
+  User,
+} from "lucide-react";
 import { reservasApi } from "../api/reservasApi";
+import "../styles/Receipt.css";
+
+function formatFecha(fecha) {
+  if (!fecha) return "No disponible";
+
+  return new Date(fecha).toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function formatPrecio(valor) {
+  if (valor === null || valor === undefined) return "0,00 €";
+
+  return Number(valor).toLocaleString("es-ES", {
+    style: "currency",
+    currency: "EUR",
+  });
+}
 
 export default function Receipt() {
   const { id } = useParams();
@@ -11,11 +40,14 @@ export default function Receipt() {
 
   useEffect(() => {
     const cargarFactura = async () => {
+      setLoading(true);
+      setError("");
+
       try {
         const data = await reservasApi.getFacturaPorReserva(id);
         setFactura(data);
       } catch (error) {
-        setError(error.message || "No se pudo cargar el comprobante");
+        setError(error.message || "No se pudo cargar el comprobante.");
       } finally {
         setLoading(false);
       }
@@ -26,68 +58,120 @@ export default function Receipt() {
 
   if (loading) {
     return (
-      <div style={{ padding: 40 }}>
-        <p>Cargando comprobante...</p>
-      </div>
+      <section className="receipt-page">
+        <div className="receipt-container">
+          <div className="receipt-status-card">
+            <div className="receipt-loader" />
+            <p>Cargando comprobante...</p>
+          </div>
+        </div>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: 40 }}>
-        <h1>Comprobante</h1>
-        <p style={{ color: "red" }}>{error}</p>
-        <Link to="/mis-reservas">Volver a mis reservas</Link>
-      </div>
+      <section className="receipt-page">
+        <div className="receipt-container">
+          <div className="receipt-error-card">
+            <h1>Comprobante</h1>
+            <p>{error}</p>
+
+            <Link to="/mis-reservas">
+              <ArrowLeft size={17} />
+              Volver a mis reservas
+            </Link>
+          </div>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div style={{ padding: 40, maxWidth: 600, margin: "0 auto" }}>
-      <h1>Comprobante</h1>
+    <section className="receipt-page">
+      <div className="receipt-container">
+        <Link to="/mis-reservas" className="receipt-back">
+          <ArrowLeft size={17} />
+          Volver a mis reservas
+        </Link>
 
-      <div
-        style={{
-          border: "1px solid #ddd",
-          padding: 20,
-          borderRadius: 8,
-          marginBottom: 20,
-        }}
-      >
-        <p>
-          <strong>Número:</strong> {factura.numero}
-        </p>
+        <div className="receipt-card">
+          <div className="receipt-header">
+            <div>
+              <span>Comprobante</span>
+              <h1>{factura.numero}</h1>
+            </div>
 
-        <p>
-          <strong>Fecha emisión:</strong> {factura.fechaEmision}
-        </p>
+            <div className="receipt-header-icon">
+              <ReceiptText size={30} />
+            </div>
+          </div>
 
-        <p>
-          <strong>Cliente:</strong> {factura.clienteNombre}
-        </p>
+          <div className="receipt-state">
+            <CheckCircle2 size={18} />
+            <span>{factura.estado}</span>
+          </div>
 
-        <p>
-          <strong>Email:</strong> {factura.clienteEmail}
-        </p>
+          <div className="receipt-section">
+            <h2>Datos del cliente</h2>
 
-        <p>
-          <strong>Subtotal:</strong> {factura.subtotal} €
-        </p>
+            <div className="receipt-info-grid">
+              <div className="receipt-info-item">
+                <User size={17} />
+                <div>
+                  <span>Cliente</span>
+                  <strong>{factura.clienteNombre}</strong>
+                </div>
+              </div>
 
-        <p>
-          <strong>IVA:</strong> {factura.iva} €
-        </p>
+              <div className="receipt-info-item">
+                <Mail size={17} />
+                <div>
+                  <span>Email</span>
+                  <strong>{factura.clienteEmail}</strong>
+                </div>
+              </div>
 
-        <p>
-          <strong>Total:</strong> {factura.total} €
-        </p>
+              <div className="receipt-info-item">
+                <CalendarDays size={17} />
+                <div>
+                  <span>Fecha de emisión</span>
+                  <strong>{formatFecha(factura.fechaEmision)}</strong>
+                </div>
+              </div>
 
-        <p>
-          <strong>Estado:</strong> {factura.estado}
-        </p>
+              <div className="receipt-info-item">
+                <FileText size={17} />
+                <div>
+                  <span>Número</span>
+                  <strong>{factura.numero}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="receipt-section">
+            <h2>Resumen económico</h2>
+
+            <div className="receipt-totals">
+              <div>
+                <span>Subtotal</span>
+                <strong>{factura.subtotal}€</strong>
+              </div>
+
+              <div>
+                <span>IVA</span>
+                <strong>{factura.iva}€</strong>
+              </div>
+
+              <div className="receipt-total">
+                <span>Total</span>
+                <strong>{factura.total}.00€</strong>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <Link to="/mis-reservas">Volver a mis reservas</Link>
-    </div>
+    </section>
   );
 }

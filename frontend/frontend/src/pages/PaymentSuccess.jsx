@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { CheckCircle2, FileText, Loader2, Ticket } from "lucide-react";
 import { reservasApi } from "../api/reservasApi";
+import "../styles/PaymentResult.css";
 
 export default function PaymentSuccess() {
   const [params] = useSearchParams();
@@ -20,7 +22,7 @@ export default function PaymentSuccess() {
         const data = await reservasApi.confirmarCheckoutSession(sessionId);
         setResultado(data);
       } catch (error) {
-        setError(error.message || "No se pudo confirmar el pago");
+        setError(error.message || "No se pudo confirmar el pago.");
       }
     };
 
@@ -28,40 +30,79 @@ export default function PaymentSuccess() {
   }, [sessionId]);
 
   return (
-    <div style={{ padding: 40, maxWidth: 500, margin: "0 auto" }}>
-      <h1>Pago realizado</h1>
+    <section className="payment-result-page">
+      <div className="payment-result-card payment-result-card--success">
+        <div className="payment-result-icon payment-result-icon--success">
+          <CheckCircle2 size={34} />
+        </div>
 
-      {!sessionId && <p style={{ color: "red" }}>No se ha encontrado la sesión de Stripe.</p>}
+        <h1>Pago realizado</h1>
 
-      {!resultado && !error && <p>Confirmando pago...</p>}
+        {!sessionId && (
+          <div className="payment-result-alert payment-result-alert--error">
+            No se ha encontrado la sesión de pago.
+          </div>
+        )}
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {!resultado && !error && sessionId && (
+          <div className="payment-result-loading">
+            <Loader2 size={20} />
+            <span>Confirmando pago...</span>
+          </div>
+        )}
 
-      {resultado && (
-        <>
-          <p style={{ color: "green" }}>
-            Pago confirmado correctamente.
-          </p>
+        {error && (
+          <div className="payment-result-alert payment-result-alert--error">
+            {error}
+          </div>
+        )}
 
-          <p>
-            <strong>Reserva:</strong> {resultado.reservaId}
-          </p>
+        {resultado && (
+          <>
+            <p className="payment-result-text">
+              Tu pago se ha confirmado correctamente y la reserva ya aparece en
+              tu historial.
+            </p>
 
-          <p>
-            <strong>Importe:</strong> {resultado.importe} €
-          </p>
+            <div className="payment-result-summary">
+              <div>
+                <span>Reserva</span>
+                <strong>#{resultado.reservaId}</strong>
+              </div>
 
-          <p>
-            <strong>Estado pago:</strong> {resultado.estadoPago}
-          </p>
+              <div>
+                <span>Importe</span>
+                <strong>{resultado.importe},00 €</strong>
+              </div>
 
-          <p>
-            <strong>Estado reserva:</strong> {resultado.estadoReserva}
-          </p>
+              <div>
+                <span>Estado del pago</span>
+                <strong>{resultado.estadoPago}</strong>
+              </div>
 
-          <Link to="/mis-reservas">Ver mis reservas</Link>
-        </>
-      )}
-    </div>
+              <div>
+                <span>Estado de la reserva</span>
+                <strong>{resultado.estadoReserva}</strong>
+              </div>
+            </div>
+
+            <div className="payment-result-actions">
+              <Link to="/mis-reservas" className="payment-result-button">
+                <Ticket size={17} />
+                Ver mis reservas
+              </Link>
+
+              <Link
+                to={`/comprobante/${resultado.reservaId}`}
+                className="payment-result-button payment-result-button--secondary"
+              >
+                <FileText size={17} />
+                Ver comprobante
+              </Link>
+            </div>
+          </>
+        )}
+      </div>
+    </section>
   );
 }

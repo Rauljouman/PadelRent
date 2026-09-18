@@ -1,7 +1,26 @@
 import { useEffect, useState } from "react";
+import { Mail, Phone, Save, User, CalendarDays, CreditCard } from "lucide-react";
 import { userApi } from "../api/userApi";
 import { reservasApi } from "../api/reservasApi";
 import { useAuth } from "../context/AuthContext";
+import "../styles/Profile.css";
+
+function calcularTotalGastado(reservasPagadas) {
+  return reservasPagadas.reduce(
+    (total, reserva) => total + Number(reserva.precioPista || 0),
+    0
+  );
+}
+
+function formatFecha(fecha) {
+  if (!fecha) return "No disponible";
+
+  return new Date(fecha).toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
 
 export default function Profile() {
   const { updateUser } = useAuth();
@@ -20,19 +39,24 @@ export default function Profile() {
 
   useEffect(() => {
     const cargarDatos = async () => {
+      setLoading(true);
+      setError("");
+
       try {
         const perfilData = await userApi.getMe();
         const reservasData = await reservasApi.getMisReservas();
 
-        const pagadas = reservasData.filter(
-          (reserva) => reserva.estado === "Pagada"
-        );
+        const pagadas = Array.isArray(reservasData)
+          ? reservasData.filter((reserva) => reserva.estado === "Pagada")
+          : [];
 
         setPerfil(perfilData);
+
         setForm({
           nombre: perfilData.nombre || "",
           telefono: perfilData.telefono || "",
         });
+
         setReservasPagadas(pagadas);
       } catch (error) {
         setError(error.message || "No se pudo cargar el perfil.");
@@ -71,8 +95,8 @@ export default function Profile() {
 
     try {
       const data = await userApi.updateMe({
-        nombre: form.nombre,
-        telefono: form.telefono,
+        nombre: form.nombre.trim(),
+        telefono: form.telefono.trim(),
       });
 
       setPerfil(data);
@@ -92,101 +116,151 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div style={{ padding: 40 }}>
-        <p>Cargando perfil...</p>
-      </div>
+      <section className="profile-page">
+        <div className="profile-container">
+          <div className="profile-status-card">
+            <div className="profile-loader" />
+            <p>Cargando perfil...</p>
+          </div>
+        </div>
+      </section>
     );
   }
 
   if (!perfil) {
     return (
-      <div style={{ padding: 40 }}>
-        <h1>Mi perfil</h1>
-        <p style={{ color: "red" }}>{error || "No se pudo cargar el perfil."}</p>
-      </div>
+      <section className="profile-page">
+        <div className="profile-container">
+          <div className="profile-error">
+            {error || "No se pudo cargar el perfil."}
+          </div>
+        </div>
+      </section>
     );
   }
 
+  const totalGastado = calcularTotalGastado(reservasPagadas);
+  const ultimaReservaPagada = reservasPagadas[0];
+
   return (
-    <div style={{ padding: 40, maxWidth: 500, margin: "0 auto" }}>
-      <h1>Mi perfil</h1>
+    <section className="profile-page">
+      <div className="profile-container">
+        <div className="profile-header">
+          <h1>Mi perfil</h1>
+          <p>Gestiona tus datos personales y consulta tu actividad.</p>
+        </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
+        {error && <div className="profile-error">{error}</div>}
+        {mensaje && <div className="profile-success">{mensaje}</div>}
 
-      <div
-        style={{
-          border: "1px solid #ddd",
-          padding: 16,
-          borderRadius: 8,
-          marginBottom: 24,
-        }}
-      >
-        <p>
-          <strong>Email:</strong> {perfil.email}
-        </p>
+        <div className="profile-layout">
+          <div className="profile-main-card">
+            <div className="profile-card-header">
+              <div className="profile-avatar">
+                <User size={26} />
+              </div>
 
-        <p>
-          <strong>Fecha de creación:</strong> {perfil.fechaCreacion}
-        </p>
+              <div>
+                <h2>{perfil.nombre}</h2>
+                <p>{perfil.email}</p>
+              </div>
+            </div>
+
+            <form className="profile-form" onSubmit={guardarCambios}>
+              <div className="profile-form-group">
+                <label htmlFor="nombre">Nombre</label>
+                <input
+                  id="nombre"
+                  name="nombre"
+                  value={form.nombre}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="profile-form-group">
+                <label htmlFor="telefono">Teléfono</label>
+                <input
+                  id="telefono"
+                  name="telefono"
+                  value={form.telefono}
+                  onChange={handleChange}
+                  maxLength={9}
+                  placeholder="Ej. 600123456"
+                />
+              </div>
+
+              <button
+                className="profile-save-button"
+                type="submit"
+                disabled={guardando}
+              >
+                <Save size={17} />
+                {guardando ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </form>
+          </div>
+
+          <aside className="profile-side">
+            <div className="profile-info-card">
+              <h3>Datos de la cuenta</h3>
+
+              <div className="profile-info-row">
+                <Mail size={17} />
+                <div>
+                  <span>Email</span>
+                  <strong>{perfil.email}</strong>
+                </div>
+              </div>
+
+              <div className="profile-info-row">
+                <Phone size={17} />
+                <div>
+                  <span>Teléfono</span>
+                  <strong>{perfil.telefono || "No indicado"}</strong>
+                </div>
+              </div>
+
+              <div className="profile-info-row">
+                <CalendarDays size={17} />
+                <div>
+                  <span>Fecha de creación</span>
+                  <strong>{formatFecha(perfil.fechaCreacion)}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="profile-info-card">
+              <h3>Resumen de reservas</h3>
+
+              <div className="profile-stat-grid">
+                <div className="profile-stat">
+                  <span>Reservas pagadas</span>
+                  <strong>{reservasPagadas.length}</strong>
+                </div>
+
+                <div className="profile-stat">
+                  <span>Total gastado</span>
+                  <strong>{totalGastado},00 €</strong>
+                </div>
+              </div>
+
+              {ultimaReservaPagada && (
+                <div className="profile-last-booking">
+                  <CreditCard size={17} />
+                  <div>
+                    <span>Última reserva pagada</span>
+                    <strong>
+                      {ultimaReservaPagada.pistaNombre} ·{" "}
+                      {ultimaReservaPagada.fecha}
+                    </strong>
+                  </div>
+                </div>
+              )}
+            </div>
+          </aside>
+        </div>
       </div>
-
-      <div
-        style={{
-          border: "1px solid #ddd",
-          padding: 16,
-          borderRadius: 8,
-          marginBottom: 24,
-        }}
-      >
-        <h2>Resumen de reservas</h2>
-
-        <p>
-          <strong>Reservas pagadas:</strong> {reservasPagadas.length}
-        </p>
-
-        <p>
-          <strong>Total gastado:</strong>{" "}
-          {reservasPagadas.reduce(
-            (total, reserva) => total + reserva.precioPista,
-            0
-          )}{" "}
-          €
-        </p>
-
-        {reservasPagadas.length > 0 && (
-          <p>
-            <strong>Última reserva pagada:</strong>{" "}
-            {reservasPagadas[0].pistaNombre} - {reservasPagadas[0].fecha}
-          </p>
-        )}
-      </div>
-
-      <form onSubmit={guardarCambios}>
-        <label>Nombre</label>
-
-        <input
-          name="nombre"
-          value={form.nombre}
-          onChange={handleChange}
-          required
-          style={{ display: "block", width: "100%", marginBottom: 12 }}
-        />
-
-        <label>Teléfono</label>
-
-        <input
-          name="telefono"
-          value={form.telefono}
-          onChange={handleChange}
-          maxLength={9}
-          style={{ display: "block", width: "100%", marginBottom: 12 }}
-        />
-
-        <button type="submit" disabled={guardando}>
-          {guardando ? "Guardando..." : "Guardar cambios"}
-        </button>
-      </form>
-    </div>
+    </section>
   );
 }
