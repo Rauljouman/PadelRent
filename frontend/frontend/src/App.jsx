@@ -37,6 +37,8 @@ function AppRoutes() {
 
       <Route path="/privacy" element={<Privacy />} />
 
+      <Route path="*" element={<NotFound />} />
+
       <Route
         path="/disponibilidad"
         element={
