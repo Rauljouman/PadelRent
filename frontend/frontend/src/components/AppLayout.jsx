@@ -6,9 +6,7 @@ export default function AppLayout({ children }) {
     <div className="app-layout">
       <Navbar />
 
-      <main className="app-layout__content">
-        {children}
-      </main>
+      <main className="app-layout__content">{children}</main>
     </div>
   );
 }

@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CalendarDays, Clock, MapPin, ArrowRight, RefreshCcw } from "lucide-react";
+import {
+  CalendarDays,
+  Clock,
+  MapPin,
+  ArrowRight,
+  RefreshCcw,
+} from "lucide-react";
 import { reservasApi } from "../api/reservasApi";
 import "../styles/Availability.css";
 
@@ -10,7 +16,12 @@ const PRICE_BY_DURATION = {
 };
 
 function todayStr() {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 function formatHora(hora) {
@@ -37,7 +48,7 @@ export default function Availability() {
 
     try {
       const data = await reservasApi.getDisponibilidad(fecha, duracion);
-      setHorarios(data);
+      setHorarios(Array.isArray(data) ? data : []);
     } catch (error) {
       setError(error.message || "No se pudo cargar la disponibilidad.");
     } finally {
@@ -77,139 +88,159 @@ export default function Availability() {
 
   return (
     <section className="availability-page">
-      <div className="availability-header">
-        <div>
-          <h1>Disponibilidad</h1>
-          <p>Elige día y duración para ver las pistas libres.</p>
+      <div className="availability-container">
+        <div className="availability-header">
+          <div>
+            <h1>Disponibilidad</h1>
+            <p>Elige día y duración para ver las pistas libres.</p>
+          </div>
+
+          <button
+            className="availability-refresh"
+            type="button"
+            onClick={buscarDisponibilidad}
+            disabled={loading}
+          >
+            <RefreshCcw size={17} />
+            Actualizar
+          </button>
         </div>
 
-        <button
-          className="availability-refresh"
-          type="button"
-          onClick={buscarDisponibilidad}
-          disabled={loading}
-        >
-          <RefreshCcw size={17} />
-          Actualizar
-        </button>
-      </div>
+        <div className="availability-filters">
+          <div className="availability-filter">
+            <label htmlFor="fecha">
+              <CalendarDays size={17} />
+              Fecha
+            </label>
 
-      <div className="availability-filters">
-        <div className="availability-filter">
-          <label>
-            <CalendarDays size={18} />
-            Fecha
-          </label>
+            <input
+              id="fecha"
+              type="date"
+              value={fecha}
+              min={todayStr()}
+              onChange={(e) => setFecha(e.target.value)}
+            />
+          </div>
 
-          <input
-            type="date"
-            value={fecha}
-            min={todayStr()}
-            onChange={(e) => setFecha(e.target.value)}
-          />
-        </div>
+          <div className="availability-filter">
+            <label>
+              <Clock size={17} />
+              Duración
+            </label>
 
-        <div className="availability-filter">
-          <label>
-            <Clock size={18} />
-            Duración
-          </label>
+            <div className="duration-selector">
+              <button
+                type="button"
+                className={
+                  duracion === 60
+                    ? "duration-option duration-option--active"
+                    : "duration-option"
+                }
+                onClick={() => setDuracion(60)}
+              >
+                60 min · {PRICE_BY_DURATION[60]},00 €
+              </button>
 
-          <div className="duration-selector">
-            <button
-              type="button"
-              className={duracion === 60 ? "duration-option active" : "duration-option"}
-              onClick={() => setDuracion(60)}
-            >
-              60 min · {PRICE_BY_DURATION[60]},00 €
-            </button>
-
-            <button
-              type="button"
-              className={duracion === 90 ? "duration-option active" : "duration-option"}
-              onClick={() => setDuracion(90)}
-            >
-              90 min · {PRICE_BY_DURATION[90]},00 €
-            </button>
+              <button
+                type="button"
+                className={
+                  duracion === 90
+                    ? "duration-option duration-option--active"
+                    : "duration-option"
+                }
+                onClick={() => setDuracion(90)}
+              >
+                90 min · {PRICE_BY_DURATION[90]},00 €
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {loading && (
-        <div className="availability-status-card">
-          <div className="availability-loader" />
-          <p>Cargando disponibilidad...</p>
-        </div>
-      )}
+        {loading && (
+          <div className="availability-status-card">
+            <div className="availability-loader" />
+            <p>Cargando disponibilidad...</p>
+          </div>
+        )}
 
-      {error && <div className="availability-error">{error}</div>}
+        {error && <div className="availability-error">{error}</div>}
 
-      {!loading && !error && horarios.length === 0 && (
-        <div className="availability-empty">
-          <h2>No hay horarios disponibles</h2>
-          <p>Prueba con otra fecha o duración.</p>
-        </div>
-      )}
+        {!loading && !error && horarios.length === 0 && (
+          <div className="availability-empty">
+            <h2>No hay horarios disponibles</h2>
+            <p>Prueba con otra fecha o duración.</p>
+          </div>
+        )}
 
-      {!loading && !error && horarios.length > 0 && (
-        <div className="availability-list">
-          {horarios.map((horario) => {
-            const disponibles = horario.pistasDisponibles || [];
+        {!loading && !error && horarios.length > 0 && (
+          <div className="availability-list">
+            {horarios.map((horario) => {
+              const disponibles = horario.pistasDisponibles || [];
 
-            return (
-              <article className="time-card" key={`${horario.horaInicio}-${horario.horaFin}`}>
-                <div className="time-card__hour">
-                  {formatHora(horario.horaInicio)}
-                </div>
+              return (
+                <article
+                  className="time-card"
+                  key={`${horario.horaInicio}-${horario.horaFin}`}
+                >
+                  <div className="time-card__hour">
+                    {formatHora(horario.horaInicio)}
+                  </div>
 
-                <div className="time-card__content">
-                  <div className="time-card__top">
-                    <div>
-                      <h2>
-                        {formatHora(horario.horaInicio)} – {formatHora(horario.horaFin)}
-                      </h2>
+                  <div className="time-card__content">
+                    <div className="time-card__top">
+                      <div>
+                        <h2>
+                          {formatHora(horario.horaInicio)} –{" "}
+                          {formatHora(horario.horaFin)}
+                        </h2>
 
-                      <p>
-                        {duracion} min · {precio},00 €
-                      </p>
+                        <p>
+                          {duracion} min · {precio},00 €
+                        </p>
+                      </div>
+
+                      <span className="time-card__free">
+                        {disponibles.length} libres
+                      </span>
                     </div>
 
-                    <span className="time-card__free">
-                      {disponibles.length} libres
-                    </span>
-                  </div>
+                    <div className="time-card__courts">
+                      {disponibles.length === 0 ? (
+                        <span className="court-button court-button--disabled">
+                          Sin pistas disponibles
+                        </span>
+                      ) : (
+                        disponibles.map((pista) => {
+                          const selected =
+                            pistaSeleccionada?.horaInicio ===
+                              horario.horaInicio &&
+                            pistaSeleccionada?.pistaId === pista.id;
 
-                  <div className="time-card__courts">
-                    {disponibles.length === 0 ? (
-                      <span className="court-button court-button--disabled">
-                        Sin pistas disponibles
-                      </span>
-                    ) : (
-                      disponibles.map((pista) => {
-                        const selected =
-                          pistaSeleccionada?.horaInicio === horario.horaInicio &&
-                          pistaSeleccionada?.pistaId === pista.id;
-
-                        return (
-                          <button
-                            key={pista.id}
-                            type="button"
-                            className={selected ? "court-button active" : "court-button"}
-                            onClick={() => seleccionarPista(horario, pista)}
-                          >
-                            <MapPin size={15} />
-                            {pista.nombre}
-                          </button>
-                        );
-                      })
-                    )}
+                          return (
+                            <button
+                              key={pista.id}
+                              type="button"
+                              className={
+                                selected
+                                  ? "court-button court-button--active"
+                                  : "court-button"
+                              }
+                              onClick={() => seleccionarPista(horario, pista)}
+                            >
+                              <MapPin size={15} />
+                              {pista.nombre}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {pistaSeleccionada && (
         <div className="booking-bar">
