@@ -1,182 +1,158 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Phone, User } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import AuthLayout from "../components/AuthLayout";
-import "../styles/Register.css";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import {
+  ArrowLeft,
+  CalendarDays,
+  CheckCircle2,
+  FileText,
+  Mail,
+  ReceiptText,
+  User,
+} from "lucide-react";
+import { reservasApi } from "../api/reservasApi";
+import "../styles/Receipt.css";
 
-export default function Register() {
-  const navigate = useNavigate();
-  const { register } = useAuth();
+export default function Receipt() {
+  const { id } = useParams();
 
-  const [form, setForm] = useState({
-    nombre: "",
-    email: "",
-    telefono: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const [accepted, setAccepted] = useState(false);
+  const [factura, setFactura] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+  useEffect(() => {
+    const cargarFactura = async () => {
+      setLoading(true);
+      setError("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+      try {
+        const data = await reservasApi.getFacturaPorReserva(id);
+        setFactura(data);
+      } catch (error) {
+        setError(error.message || "No se pudo cargar el comprobante.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setError("");
+    cargarFactura();
+  }, [id]);
 
-    if (form.password !== form.confirmPassword) {
-      setError("Las contraseñas no coinciden.");
-      return;
-    }
+  if (loading) {
+    return (
+      <section className="receipt-page">
+        <div className="receipt-container">
+          <div className="receipt-status-card">
+            <div className="receipt-loader" />
+            <p>Cargando comprobante...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
-    if (!accepted) {
-      setError("Debes aceptar los términos y la política de privacidad.");
-      return;
-    }
+  if (error) {
+    return (
+      <section className="receipt-page">
+        <div className="receipt-container">
+          <div className="receipt-error-card">
+            <h1>Comprobante</h1>
+            <p>{error}</p>
 
-    if (!/^\d{9}$/.test(form.telefono)) {
-      setError("El teléfono debe tener exactamente 9 dígitos.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await register({
-        nombre: form.nombre,
-        email: form.email,
-        password: form.password,
-        telefono: form.telefono,
-      });
-
-      navigate("/disponibilidad");
-    } catch (error) {
-      setError(error.message || "No se pudo crear la cuenta.");
-    } finally {
-      setLoading(false);
-    }
-  };
+            <Link to="/mis-reservas">
+              <ArrowLeft size={17} />
+              Volver a mis reservas
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <AuthLayout
-      title="Crea tu cuenta"
-      subtitle="Regístrate para empezar a reservar."
-      footerText="¿Ya tienes cuenta?"
-      footerLinkText="Inicia sesión"
-      footerLinkTo="/login"
-    >
-      <form className="register-form" onSubmit={handleSubmit}>
-        {error && <div className="register-form__error">{error}</div>}
+    <section className="receipt-page">
+      <div className="receipt-container">
+        <Link to="/mis-reservas" className="receipt-back">
+          <ArrowLeft size={17} />
+          Volver a mis reservas
+        </Link>
 
-        <div className="register-form__field">
-          <label>Nombre</label>
+        <div className="receipt-card">
+          <div className="receipt-header">
+            <div>
+              <span>Comprobante</span>
+              <h1>{factura.numero}</h1>
+            </div>
 
-          <div className="register-form__input">
-            <User size={18} />
-            <input
-              name="nombre"
-              value={form.nombre}
-              onChange={handleChange}
-              placeholder="Tu nombre"
-              required
-            />
+            <div className="receipt-header-icon">
+              <ReceiptText size={30} />
+            </div>
+          </div>
+
+          <div className="receipt-state">
+            <CheckCircle2 size={18} />
+            <span>{factura.estado}</span>
+          </div>
+
+          <div className="receipt-section">
+            <h2>Datos del cliente</h2>
+
+            <div className="receipt-info-grid">
+              <div className="receipt-info-item">
+                <User size={17} />
+                <div>
+                  <span>Cliente</span>
+                  <strong>{factura.clienteNombre}</strong>
+                </div>
+              </div>
+
+              <div className="receipt-info-item">
+                <Mail size={17} />
+                <div>
+                  <span>Email</span>
+                  <strong>{factura.clienteEmail}</strong>
+                </div>
+              </div>
+
+              <div className="receipt-info-item">
+                <CalendarDays size={17} />
+                <div>
+                  <span>Fecha de emisión</span>
+                  <strong>{factura.fechaEmision}</strong>
+                </div>
+              </div>
+
+              <div className="receipt-info-item">
+                <FileText size={17} />
+                <div>
+                  <span>Número</span>
+                  <strong>{factura.numero}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="receipt-section">
+            <h2>Resumen económico</h2>
+
+            <div className="receipt-totals">
+              <div>
+                <span>Subtotal</span>
+                <strong>{factura.subtotal},00 €</strong>
+              </div>
+
+              <div>
+                <span>IVA</span>
+                <strong>{factura.iva},00 €</strong>
+              </div>
+
+              <div className="receipt-total">
+                <span>Total</span>
+                <strong>{factura.total},00 €</strong>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div className="register-form__field">
-          <label>Email</label>
-
-          <div className="register-form__input">
-            <Mail size={18} />
-            <input
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="tu@email.com"
-              required
-            />
-          </div>
-        </div>
-
-        <div className="register-form__field">
-          <label>Teléfono</label>
-
-          <div className="register-form__input">
-            <Phone size={18} />
-            <input
-              name="telefono"
-              value={form.telefono}
-              onChange={handleChange}
-              placeholder="600000000"
-              maxLength={9}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="register-form__field">
-          <label>Contraseña</label>
-
-          <div className="register-form__input">
-            <Lock size={18} />
-            <input
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
-          </div>
-        </div>
-
-        <div className="register-form__field">
-          <label>Repetir contraseña</label>
-
-          <div className="register-form__input">
-            <Lock size={18} />
-            <input
-              name="confirmPassword"
-              type="password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
-          </div>
-        </div>
-
-        <label className="register-form__checkbox">
-          <input
-            type="checkbox"
-            checked={accepted}
-            onChange={(e) => setAccepted(e.target.checked)}
-          />
-
-          <span>
-            Acepto los <Link to="/terms">términos y condiciones</Link> y la{" "}
-            <Link to="/privacy">política de privacidad</Link>.
-          </span>
-        </label>
-
-        <button
-          className="register-form__button"
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? "Creando..." : "Crear cuenta"}
-        </button>
-      </form>
-    </AuthLayout>
+      </div>
+    </section>
   );
 }
