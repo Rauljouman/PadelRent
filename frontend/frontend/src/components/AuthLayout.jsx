@@ -14,7 +14,7 @@ export default function AuthLayout({
     <div className="auth-layout">
       <div className="auth-layout__body">
         <section className="auth-layout__hero">
-          <Link to="/disponibilidad" className="auth-layout__brand">
+          <Link to="/" className="auth-layout__brand">
             <div className="auth-layout__brand-icon">
               <CircleDot size={18} />
             </div>

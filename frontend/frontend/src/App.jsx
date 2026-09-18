@@ -1,10 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AppLayout from "./components/AppLayout";
 
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Availability from "./pages/Availability";
@@ -19,29 +20,10 @@ import Profile from "./pages/Profile";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 
-function Home() {
-  const { isAuthenticated } = useAuth();
-
-  if (isAuthenticated) {
-    return <Navigate to="/disponibilidad" replace />;
-  }
-
-  return (
-    <div style={{ padding: 40 }}>
-      <h1>PadelRent</h1>
-      <p>Reserva pistas de pádel online.</p>
-
-      <Link to="/login">Iniciar sesión</Link>
-      <br />
-      <Link to="/register">Registrarse</Link>
-    </div>
-  );
-}
-
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Availability />} />
+      <Route path="/" element={<Home />} />
 
       <Route path="/login" element={<Login />} />
 
@@ -50,6 +32,10 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
       <Route path="/reset-password" element={<ResetPassword />} />
+
+      <Route path="/terms" element={<Terms />} />
+
+      <Route path="/privacy" element={<Privacy />} />
 
       <Route
         path="/disponibilidad"
@@ -79,6 +65,17 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppLayout>
               <MyBookings />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/perfil"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Profile />
             </AppLayout>
           </ProtectedRoute>
         }
@@ -116,20 +113,6 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
-      <Route
-        path="/perfil"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <Profile />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route path="/terms" element={<Terms />} />
-      <Route path="/privacy" element={<Privacy />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
