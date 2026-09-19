@@ -15,25 +15,32 @@ public class EmailService
 
     public async Task EnviarEmailAsync(string destinatario, string asunto, string contenidoHtml)
     {
-        var host = _configuration["Email:Host"];
-        var port = int.Parse(_configuration["Email:Port"] ?? "587");
-        var username = _configuration["Email:Username"];
-        var password = _configuration["Email:Password"];
-        var from = _configuration["Email:From"];
+        var smtpHost = _configuration["Email:SmtpHost"];
+        var smtpPortText = _configuration["Email:SmtpPort"];
+        var smtpUser = _configuration["Email:SmtpUser"];
+        var smtpPassword = _configuration["Email:SmtpPassword"];
+        var fromEmail = _configuration["Email:FromEmail"];
+        var fromName = _configuration["Email:FromName"] ?? "PadelRent";
 
         if (
-            string.IsNullOrWhiteSpace(host) ||
-            string.IsNullOrWhiteSpace(username) ||
-            string.IsNullOrWhiteSpace(password) ||
-            string.IsNullOrWhiteSpace(from)
+            string.IsNullOrWhiteSpace(smtpHost) ||
+            string.IsNullOrWhiteSpace(smtpPortText) ||
+            string.IsNullOrWhiteSpace(smtpUser) ||
+            string.IsNullOrWhiteSpace(smtpPassword) ||
+            string.IsNullOrWhiteSpace(fromEmail)
         )
         {
             throw new Exception("La configuración de email no está completa.");
         }
 
+        if (!int.TryParse(smtpPortText, out var smtpPort))
+        {
+            throw new Exception("El puerto SMTP no es válido.");
+        }
+
         var email = new MimeMessage();
 
-        email.From.Add(MailboxAddress.Parse(from));
+        email.From.Add(new MailboxAddress(fromName, fromEmail));
         email.To.Add(MailboxAddress.Parse(destinatario));
         email.Subject = asunto;
 
@@ -44,8 +51,8 @@ public class EmailService
 
         using var smtp = new SmtpClient();
 
-        await smtp.ConnectAsync(host, port, SecureSocketOptions.StartTls);
-        await smtp.AuthenticateAsync(username, password);
+        await smtp.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);
+        await smtp.AuthenticateAsync(smtpUser, smtpPassword);
         await smtp.SendAsync(email);
         await smtp.DisconnectAsync(true);
     }

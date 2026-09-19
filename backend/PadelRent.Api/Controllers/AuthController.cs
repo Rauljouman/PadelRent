@@ -88,6 +88,19 @@ public class AuthController : ControllerBase
 
         var token = _jwtService.GenerateToken(usuario);
 
+        var contenidoBienvenida = $@"
+            <h2>Bienvenido a PadelRent</h2>
+            <p>Hola {usuario.Nombre},</p>
+            <p>Tu cuenta se ha creado correctamente.</p>
+            <p>Ya puedes iniciar sesión y reservar tu pista de pádel.</p>
+        ";
+
+        await _emailService.EnviarEmailAsync(
+            usuario.Email,
+            "Cuenta creada en PadelRent",
+            contenidoBienvenida
+        );
+
         return Ok(new AuthResponseDto
         {
             Token = token,
@@ -164,12 +177,10 @@ public class AuthController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        var frontendUrl = _configuration["Email:FrontendUrl"];
-
-        if (string.IsNullOrWhiteSpace(frontendUrl))
-            {
-                return BadRequest("La URL del frontend no está configurada.");
-            }
+        var frontendUrl =
+            _configuration["Frontend:BaseUrl"] ??
+            _configuration["Email:FrontendUrl"] ??
+            "http://localhost:5173";
 
         var resetLink = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(token)}";
 
@@ -222,7 +233,14 @@ public class AuthController : ControllerBase
 
         if (usuario == null)
         {
-            return BadRequest("El token no es válido o ha expirado.");
+            return BadRequest("El enlace no es válido o ha expirado.");
+        }
+
+        var mismaPassword = BCrypt.Net.BCrypt.Verify(nuevaPassword, usuario.PasswordHash);
+
+        if (mismaPassword)
+        {
+            return BadRequest("La nueva contraseña no puede ser igual a la anterior.");
         }
 
         usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(nuevaPassword);
@@ -233,7 +251,7 @@ public class AuthController : ControllerBase
 
         return Ok(new
         {
-            Mensaje = "Contraseña actualizada correctamente."
+            mensaje = "Contraseña actualizada correctamente."
         });
     }
 }

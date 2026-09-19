@@ -1,35 +1,58 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Eye, EyeOff, KeyRound } from "lucide-react";
 import { authApi } from "../api/authApi";
+import AuthLayout from "../components/AuthLayout";
+import "../styles/ResetPassword.css";
 
 export default function ResetPassword() {
-  const [params] = useSearchParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const token = params.get("token");
+  const token = searchParams.get("token");
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
-  const cambiarPassword = async (e) => {
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setError("");
+    setMensaje("");
 
     if (!token) {
-      setError("El enlace no es válido.");
+      setError("El enlace de recuperación no es válido.");
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (!form.password.trim()) {
+      setError("La nueva contraseña es obligatoria.");
+      return;
+    }
+
+    if (form.password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
       setError("Las contraseñas no coinciden.");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("La contraseña debe tener mínimo 6 caracteres.");
       return;
     }
 
@@ -38,11 +61,19 @@ export default function ResetPassword() {
     try {
       await authApi.resetPassword({
         token,
-        nuevaPassword: password,
+        nuevaPassword: form.password,
       });
 
-      alert("Contraseña cambiada correctamente.");
-      navigate("/login");
+      setMensaje("Contraseña actualizada correctamente. Te redirigiremos al login.");
+
+      setForm({
+        password: "",
+        confirmPassword: "",
+      });
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1800);
     } catch (error) {
       setError(error.message || "No se pudo cambiar la contraseña.");
     } finally {
@@ -51,48 +82,83 @@ export default function ResetPassword() {
   };
 
   return (
-    <div style={{ padding: 40, maxWidth: 450, margin: "0 auto" }}>
-      <h1>Nueva contraseña</h1>
+    <AuthLayout>
+      <div className="reset-card">
+        <div className="reset-card__icon">
+          <KeyRound size={24} />
+        </div>
 
-      <p>Introduce tu nueva contraseña.</p>
+        <div className="reset-card__header">
+          <h1>Nueva contraseña</h1>
+          <p>Introduce una nueva contraseña para recuperar el acceso a tu cuenta.</p>
+        </div>
 
-      {!token && (
-        <p style={{ color: "red" }}>
-          El enlace no es válido.
-        </p>
-      )}
+        {error && <div className="reset-error">{error}</div>}
+        {mensaje && <div className="reset-success">{mensaje}</div>}
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <form className="reset-form" onSubmit={handleSubmit}>
+          <div className="reset-form__group">
+            <label htmlFor="password">Nueva contraseña</label>
 
-      <form onSubmit={cambiarPassword}>
-        <label>Nueva contraseña</label>
+            <div className="reset-password-field">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Mínimo 6 caracteres"
+                autoComplete="new-password"
+                required
+              />
 
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{ display: "block", width: "100%", marginBottom: 12 }}
-        />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
 
-        <label>Repetir contraseña</label>
+          <div className="reset-form__group">
+            <label htmlFor="confirmPassword">Repetir contraseña</label>
 
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          style={{ display: "block", width: "100%", marginBottom: 12 }}
-        />
+            <div className="reset-password-field">
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                value={form.confirmPassword}
+                onChange={handleChange}
+                placeholder="Repite la nueva contraseña"
+                autoComplete="new-password"
+                required
+              />
 
-        <button type="submit" disabled={loading || !token}>
-          {loading ? "Guardando..." : "Cambiar contraseña"}
-        </button>
-      </form>
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                aria-label={
+                  showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
 
-      <p>
-        <Link to="/login">Volver al login</Link>
-      </p>
-    </div>
+          <button className="reset-submit" type="submit" disabled={loading}>
+            {loading ? "Guardando..." : "Cambiar contraseña"}
+          </button>
+        </form>
+
+        <Link to="/login" className="reset-back">
+          <ArrowLeft size={17} />
+          Volver al login
+        </Link>
+      </div>
+    </AuthLayout>
   );
 }
