@@ -51,9 +51,22 @@ public class EmailService
 
         using var smtp = new SmtpClient();
 
-        await smtp.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);
-        await smtp.AuthenticateAsync(smtpUser, smtpPassword);
-        await smtp.SendAsync(email);
-        await smtp.DisconnectAsync(true);
+        smtp.Timeout = 60000;
+
+        var secureSocketOptions = smtpPort == 465
+            ? SecureSocketOptions.SslOnConnect
+            : SecureSocketOptions.StartTls;
+
+        try
+        {
+            await smtp.ConnectAsync(smtpHost, smtpPort, secureSocketOptions);
+            await smtp.AuthenticateAsync(smtpUser, smtpPassword);
+            await smtp.SendAsync(email);
+            await smtp.DisconnectAsync(true);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"No se pudo enviar el email: {ex.Message}");
+        }
     }
 }
