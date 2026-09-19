@@ -17,7 +17,12 @@ public class AuthController : ControllerBase
     private readonly EmailService _emailService;
     private readonly IConfiguration _configuration;
 
-    public AuthController(AppDbContext context, JwtService jwtService, EmailService emailService, IConfiguration configuration)
+    public AuthController(
+        AppDbContext context,
+        JwtService jwtService,
+        EmailService emailService,
+        IConfiguration configuration
+    )
     {
         _context = context;
         _jwtService = jwtService;
@@ -26,7 +31,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterDto dto)
+    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
         var nombre = dto.Nombre.Trim();
         var email = dto.Email.Trim().ToLower();
@@ -86,20 +91,27 @@ public class AuthController : ControllerBase
         _context.Usuarios.Add(usuario);
         await _context.SaveChangesAsync();
 
+        try
+        {
+            var contenidoBienvenida = $@"
+                <h2>Bienvenido a PadelRent</h2>
+                <p>Hola {usuario.Nombre},</p>
+                <p>Tu cuenta se ha creado correctamente.</p>
+                <p>Ya puedes iniciar sesión y reservar tu pista de pádel.</p>
+            ";
+
+            await _emailService.EnviarEmailAsync(
+                usuario.Email,
+                "Cuenta creada en PadelRent",
+                contenidoBienvenida
+            );
+        }
+        catch
+        {
+            // No bloqueamos el registro si falla el email de bienvenida.
+        }
+
         var token = _jwtService.GenerateToken(usuario);
-
-        var contenidoBienvenida = $@"
-            <h2>Bienvenido a PadelRent</h2>
-            <p>Hola {usuario.Nombre},</p>
-            <p>Tu cuenta se ha creado correctamente.</p>
-            <p>Ya puedes iniciar sesión y reservar tu pista de pádel.</p>
-        ";
-
-        await _emailService.EnviarEmailAsync(
-            usuario.Email,
-            "Cuenta creada en PadelRent",
-            contenidoBienvenida
-        );
 
         return Ok(new AuthResponseDto
         {
@@ -111,7 +123,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto dto)
+    public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
         var email = dto.Email.Trim().ToLower();
         var password = dto.Password.Trim();
@@ -149,7 +161,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("forgot-password")]
-    public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto)
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
     {
         var email = dto.Email.Trim().ToLower();
 
@@ -177,15 +189,16 @@ public class AuthController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        var frontendUrl =
-            _configuration["Frontend:BaseUrl"] ??
+        var frontendUrl = (
             _configuration["Email:FrontendUrl"] ??
-            "http://localhost:5173";
+            "https://padelrent.vercel.app"
+        ).TrimEnd('/');
 
         var resetLink = $"{frontendUrl}/reset-password?token={Uri.EscapeDataString(token)}";
 
         var contenidoHtml = $@"
             <h2>Recuperar contraseña</h2>
+            <p>Hola {usuario.Nombre},</p>
             <p>Has solicitado cambiar tu contraseña en PadelRent.</p>
             <p>Pulsa en el siguiente enlace para crear una nueva contraseña:</p>
             <p>
@@ -195,11 +208,22 @@ public class AuthController : ControllerBase
             <p>Si no has solicitado este cambio, puedes ignorar este mensaje.</p>
         ";
 
-        await _emailService.EnviarEmailAsync(
-            usuario.Email,
-            "Recuperar contraseña - PadelRent",
-            contenidoHtml
-        );
+        try
+        {
+            await _emailService.EnviarEmailAsync(
+                usuario.Email,
+                "Recuperar contraseña - PadelRent",
+                contenidoHtml
+            );
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                mensaje = "No se pudo enviar el email de recuperación.",
+                detalle = ex.Message
+            });
+        }
 
         return Ok(new
         {
@@ -208,7 +232,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("reset-password")]
-    public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
     {
         var token = dto.Token.Trim();
         var nuevaPassword = dto.NuevaPassword.Trim();
