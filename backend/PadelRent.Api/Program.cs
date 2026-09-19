@@ -104,7 +104,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins(allowedOrigins)
+            .WithOrigins(
+                "http://localhost:5173",
+                "https://padelrent.vercel.app"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
