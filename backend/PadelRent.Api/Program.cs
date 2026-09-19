@@ -89,16 +89,6 @@ builder.Services.AddAuthentication(options =>
 });
 
 // CORS
-var allowedOrigins = builder.Configuration
-    .GetSection("Cors:AllowedOrigins")
-    .Get<string[]>() ?? new[]
-    {
-        "http://localhost:5173",
-        "https://padelrent.vercel.app"
-    };
-
-Console.WriteLine($"CORS origins: {string.Join(", ", allowedOrigins)}");
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
@@ -125,6 +115,8 @@ using (var scope = app.Services.CreateScope())
 // MIDDLEWARE
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseRouting();
 
 app.UseCors("Frontend");
 
