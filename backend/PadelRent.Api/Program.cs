@@ -1,19 +1,22 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PadelRent.Api.Data;
 using PadelRent.Api.Data.Seed;
 using PadelRent.Api.Services;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Stripe;
-
-
 
 var builder = WebApplication.CreateBuilder(args);
 
+// STRIPE
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
+// CONTROLLERS
+builder.Services.AddControllers();
+
+// SWAGGER
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
@@ -44,11 +47,19 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddControllers();
+// SERVICES
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<EmailService>();
+
+// HEALTH CHECK
 builder.Services.AddHealthChecks();
 
+// DATABASE
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
+// JWT
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
@@ -71,46 +82,47 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-
         ValidIssuer = jwtIssuer,
         ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
 });
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy
+            .WithOrigins(
+                "http://localhost:5173"
+                // Aquí luego añadiremos el dominio de Vercel:
+                // "https://tu-proyecto.vercel.app"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
+// SEED DATABASE
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     DatabaseSeeder.Seed(context);
 }
 
+// MIDDLEWARE
 app.UseSwagger();
-
 app.UseSwaggerUI();
 
 app.UseCors("Frontend");
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapHealthChecks("/health");
-
 app.MapControllers();
 
 app.Run();

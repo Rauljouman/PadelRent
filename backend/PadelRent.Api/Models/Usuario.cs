@@ -27,4 +27,7 @@ public class Usuario
     public string? PasswordResetToken { get; set; }
 
     public DateTime? PasswordResetTokenExpiracion { get; set; }
+
+    public string? ResetPasswordToken { get; set; }
+    public DateTime? ResetPasswordTokenExpiracion { get; set; }
 }
