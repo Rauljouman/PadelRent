@@ -17,6 +17,15 @@ function formatHora(hora) {
   return hora.slice(0, 5);
 }
 
+function formatPrecio(valor) {
+  if (valor === null || valor === undefined) return "0,00 €";
+
+  return Number(valor).toLocaleString("es-ES", {
+    style: "currency",
+    currency: "EUR",
+  });
+}
+
 function getEstadoClass(estado) {
   if (estado === "Pagada") return "booking-status booking-status--paid";
   if (estado === "Pendiente") return "booking-status booking-status--pending";
@@ -28,6 +37,7 @@ export default function MyBookings() {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [accionId, setAccionId] = useState(null);
+  const [reservaACancelar, setReservaACancelar] = useState(null);
   const [error, setError] = useState("");
 
   const cargarReservas = async () => {
@@ -48,14 +58,23 @@ export default function MyBookings() {
     cargarReservas();
   }, []);
 
-  const cancelarReserva = async (id) => {
-    const confirmar = window.confirm("¿Seguro que quieres cancelar esta reserva?");
-    if (!confirmar) return;
+  const abrirModalCancelar = (reserva) => {
+    setReservaACancelar(reserva);
+  };
 
-    setAccionId(id);
+  const cerrarModalCancelar = () => {
+    setReservaACancelar(null);
+  };
+
+  const confirmarCancelacion = async () => {
+    if (!reservaACancelar) return;
+
+    setAccionId(reservaACancelar.id);
+    setError("");
 
     try {
-      await reservasApi.cancelarReserva(id);
+      await reservasApi.cancelarReserva(reservaACancelar.id);
+      setReservaACancelar(null);
       await cargarReservas();
     } catch (error) {
       setError(error.message || "No se pudo cancelar la reserva.");
@@ -126,6 +145,7 @@ export default function MyBookings() {
                   <div>
                     <div className="booking-card__title-row">
                       <h2>{reserva.pistaNombre}</h2>
+
                       <span className={getEstadoClass(reserva.estado)}>
                         {reserva.estado}
                       </span>
@@ -145,7 +165,7 @@ export default function MyBookings() {
 
                       <span>
                         <CreditCard size={15} />
-                        {reserva.precioPista},00 €
+                        {formatPrecio(reserva.precioPista)}
                       </span>
                     </div>
                   </div>
@@ -166,7 +186,7 @@ export default function MyBookings() {
                       <button
                         className="booking-card__button booking-card__button--cancel"
                         type="button"
-                        onClick={() => cancelarReserva(reserva.id)}
+                        onClick={() => abrirModalCancelar(reserva)}
                         disabled={accionId === reserva.id}
                       >
                         <XCircle size={16} />
@@ -190,6 +210,46 @@ export default function MyBookings() {
           </div>
         )}
       </div>
+
+      {reservaACancelar && (
+        <div className="booking-modal-overlay">
+          <div className="booking-modal">
+            <div className="booking-modal__icon">
+              <XCircle size={26} />
+            </div>
+
+            <h2>Cancelar reserva</h2>
+
+            <p>
+              ¿Seguro que quieres cancelar la reserva de{" "}
+              <strong>{reservaACancelar.pistaNombre}</strong> el día{" "}
+              <strong>{reservaACancelar.fecha}</strong>?
+            </p>
+
+            <div className="booking-modal__actions">
+              <button
+                type="button"
+                className="booking-modal__button booking-modal__button--secondary"
+                onClick={cerrarModalCancelar}
+                disabled={accionId === reservaACancelar.id}
+              >
+                Volver
+              </button>
+
+              <button
+                type="button"
+                className="booking-modal__button booking-modal__button--danger"
+                onClick={confirmarCancelacion}
+                disabled={accionId === reservaACancelar.id}
+              >
+                {accionId === reservaACancelar.id
+                  ? "Cancelando..."
+                  : "Cancelar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

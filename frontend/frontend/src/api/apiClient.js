@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5206/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5206/api";
 
 export async function apiRequest(endpoint, options = {}) {
   const token = localStorage.getItem("padelrent_token");
@@ -19,7 +19,6 @@ export async function apiRequest(endpoint, options = {}) {
 
     if (contentType && contentType.includes("application/json")) {
       const errorData = await response.json();
-
       message =
         errorData.mensaje ||
         errorData.message ||

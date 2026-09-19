@@ -1,27 +1,44 @@
 import { apiRequest } from "./apiClient";
 
 export const authApi = {
-  login: (data) =>
-    apiRequest("/Auth/login", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
+  login: (emailOrData, password) => {
+    const body =
+      typeof emailOrData === "object"
+        ? emailOrData
+        : {
+            email: emailOrData,
+            password,
+          };
 
-  register: (data) =>
-    apiRequest("/Auth/register", {
+    return apiRequest("/Auth/login", {
       method: "POST",
-      body: JSON.stringify(data),
-    }),
+      body: JSON.stringify(body),
+    });
+  },
 
-  forgotPassword: (data) =>
-    apiRequest("/Auth/forgot-password", {
+  register: (data) => {
+    return apiRequest("/Auth/register", {
       method: "POST",
       body: JSON.stringify(data),
-    }),
+    });
+  },
 
-  resetPassword: (data) =>
-    apiRequest("/Auth/reset-password", {
+  forgotPassword: (emailOrData) => {
+    const email =
+      typeof emailOrData === "object" ? emailOrData.email : emailOrData;
+
+    return apiRequest("/Auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+      }),
+    });
+  },
+
+  resetPassword: (data) => {
+    return apiRequest("/Auth/reset-password", {
       method: "POST",
       body: JSON.stringify(data),
-    }),
+    });
+  },
 };

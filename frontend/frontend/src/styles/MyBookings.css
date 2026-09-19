@@ -9,7 +9,6 @@
 
 .my-bookings-header {
   margin-bottom: 24px;
-
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -47,11 +46,21 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .my-bookings-refresh:hover {
   background: #e3f5eb;
   color: #198754;
+}
+
+.my-bookings-refresh:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .my-bookings-status-card,
@@ -122,6 +131,11 @@
 
   font-size: 14px;
   font-weight: 650;
+}
+
+.my-bookings-empty a:hover {
+  background: #146c43;
+  text-decoration: none;
 }
 
 .my-bookings-list {
@@ -228,6 +242,7 @@
 .booking-card__button {
   min-height: 38px;
   padding: 0 14px;
+
   border-radius: 12px;
   border: 1px solid #dbe4ec;
   background: #ffffff;
@@ -242,11 +257,28 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.booking-card__button:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
 }
 
 .booking-card__button--pay {
   border-color: #198754;
   background: #198754;
+  color: #ffffff;
+}
+
+.booking-card__button--pay:hover {
+  background: #146c43;
   color: #ffffff;
 }
 
@@ -265,7 +297,121 @@
 .booking-card__button:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+  transform: none;
 }
+
+/* MODAL CANCELACIÓN */
+
+.booking-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+
+  background: rgba(7, 17, 31, 0.45);
+  backdrop-filter: blur(4px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+}
+
+.booking-modal {
+  width: min(430px, 100%);
+  padding: 28px;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid #dbe4ec;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+  text-align: center;
+}
+
+.booking-modal__icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 18px;
+  border-radius: 999px;
+  background: #fff1f0;
+  color: #b42318;
+
+  display: grid;
+  place-items: center;
+}
+
+.booking-modal h2 {
+  margin: 0 0 10px;
+  color: #07111f;
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.booking-modal p {
+  margin: 0;
+  color: #607089;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.booking-modal p strong {
+  color: #07111f;
+}
+
+.booking-modal__actions {
+  margin-top: 24px;
+
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.booking-modal__button {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.booking-modal__button:hover {
+  transform: translateY(-1px);
+}
+
+.booking-modal__button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.booking-modal__button--secondary {
+  border: 1px solid #dbe4ec;
+  background: #ffffff;
+  color: #40536c;
+}
+
+.booking-modal__button--secondary:hover {
+  background: #f2f7f5;
+}
+
+.booking-modal__button--danger {
+  border: 1px solid #b42318;
+  background: #b42318;
+  color: #ffffff;
+}
+
+.booking-modal__button--danger:hover {
+  background: #971b14;
+}
+
+/* RESPONSIVE */
 
 @media (max-width: 768px) {
   .my-bookings-header {
@@ -295,6 +441,19 @@
   }
 
   .booking-card__button {
+    width: 100%;
+  }
+
+  .booking-modal {
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+
+  .booking-modal__actions {
+    flex-direction: column;
+  }
+
+  .booking-modal__button {
     width: 100%;
   }
 }

@@ -1,158 +1,169 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import {
-  ArrowLeft,
-  CalendarDays,
-  CheckCircle2,
-  FileText,
-  Mail,
-  ReceiptText,
-  User,
-} from "lucide-react";
-import { reservasApi } from "../api/reservasApi";
-import "../styles/Receipt.css";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import { authApi } from "../api/authApi";
+import AuthLayout from "../components/AuthLayout";
+import "../styles/Register.css";
 
-export default function Receipt() {
-  const { id } = useParams();
+export default function Register() {
+  const navigate = useNavigate();
 
-  const [factura, setFactura] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({
+    nombre: "",
+    email: "",
+    telefono: "",
+    password: "",
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const cargarFactura = async () => {
-      setLoading(true);
-      setError("");
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-      try {
-        const data = await reservasApi.getFacturaPorReserva(id);
-        setFactura(data);
-      } catch (error) {
-        setError(error.message || "No se pudo cargar el comprobante.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    cargarFactura();
-  }, [id]);
+    setError("");
 
-  if (loading) {
-    return (
-      <section className="receipt-page">
-        <div className="receipt-container">
-          <div className="receipt-status-card">
-            <div className="receipt-loader" />
-            <p>Cargando comprobante...</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
+    if (!form.nombre.trim()) {
+      setError("El nombre es obligatorio.");
+      return;
+    }
 
-  if (error) {
-    return (
-      <section className="receipt-page">
-        <div className="receipt-container">
-          <div className="receipt-error-card">
-            <h1>Comprobante</h1>
-            <p>{error}</p>
+    if (!form.email.trim()) {
+      setError("El email es obligatorio.");
+      return;
+    }
 
-            <Link to="/mis-reservas">
-              <ArrowLeft size={17} />
-              Volver a mis reservas
-            </Link>
-          </div>
-        </div>
-      </section>
-    );
-  }
+    if (form.telefono && !/^\d{9}$/.test(form.telefono)) {
+      setError("El teléfono debe tener exactamente 9 dígitos.");
+      return;
+    }
+
+    if (!form.password.trim()) {
+      setError("La contraseña es obligatoria.");
+      return;
+    }
+
+    if (form.password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await authApi.register({
+        nombre: form.nombre.trim(),
+        email: form.email.trim(),
+        telefono: form.telefono.trim(),
+        password: form.password,
+      });
+
+      navigate("/login");
+    } catch (error) {
+      setError(error.message || "No se pudo crear la cuenta.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <section className="receipt-page">
-      <div className="receipt-container">
-        <Link to="/mis-reservas" className="receipt-back">
-          <ArrowLeft size={17} />
-          Volver a mis reservas
-        </Link>
+    <AuthLayout>
+      <div className="register-card">
 
-        <div className="receipt-card">
-          <div className="receipt-header">
-            <div>
-              <span>Comprobante</span>
-              <h1>{factura.numero}</h1>
-            </div>
-
-            <div className="receipt-header-icon">
-              <ReceiptText size={30} />
-            </div>
-          </div>
-
-          <div className="receipt-state">
-            <CheckCircle2 size={18} />
-            <span>{factura.estado}</span>
-          </div>
-
-          <div className="receipt-section">
-            <h2>Datos del cliente</h2>
-
-            <div className="receipt-info-grid">
-              <div className="receipt-info-item">
-                <User size={17} />
-                <div>
-                  <span>Cliente</span>
-                  <strong>{factura.clienteNombre}</strong>
-                </div>
-              </div>
-
-              <div className="receipt-info-item">
-                <Mail size={17} />
-                <div>
-                  <span>Email</span>
-                  <strong>{factura.clienteEmail}</strong>
-                </div>
-              </div>
-
-              <div className="receipt-info-item">
-                <CalendarDays size={17} />
-                <div>
-                  <span>Fecha de emisión</span>
-                  <strong>{factura.fechaEmision}</strong>
-                </div>
-              </div>
-
-              <div className="receipt-info-item">
-                <FileText size={17} />
-                <div>
-                  <span>Número</span>
-                  <strong>{factura.numero}</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="receipt-section">
-            <h2>Resumen económico</h2>
-
-            <div className="receipt-totals">
-              <div>
-                <span>Subtotal</span>
-                <strong>{factura.subtotal},00 €</strong>
-              </div>
-
-              <div>
-                <span>IVA</span>
-                <strong>{factura.iva},00 €</strong>
-              </div>
-
-              <div className="receipt-total">
-                <span>Total</span>
-                <strong>{factura.total},00 €</strong>
-              </div>
-            </div>
-          </div>
+        <div className="register-card__header">
+          <h1>Crear cuenta</h1>
+          <p>Regístrate para reservar pistas y gestionar tus partidos.</p>
         </div>
+
+        {error && <div className="register-error">{error}</div>}
+
+        <form className="register-form" onSubmit={handleSubmit}>
+          <div className="register-form__group">
+            <label htmlFor="nombre">Nombre</label>
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              value={form.nombre}
+              onChange={handleChange}
+              placeholder="Tu nombre"
+              autoComplete="name"
+              required
+            />
+          </div>
+
+          <div className="register-form__group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="tu@email.com"
+              autoComplete="email"
+              required
+            />
+          </div>
+
+          <div className="register-form__group">
+            <label htmlFor="telefono">Teléfono</label>
+            <input
+              id="telefono"
+              name="telefono"
+              type="tel"
+              value={form.telefono}
+              onChange={handleChange}
+              placeholder="Ej. 600123456"
+              maxLength={9}
+              autoComplete="tel"
+            />
+          </div>
+
+          <div className="register-form__group">
+            <label htmlFor="password">Contraseña</label>
+
+            <div className="register-password-field">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Mínimo 6 caracteres"
+                autoComplete="new-password"
+                required
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={
+                  showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <button className="register-submit" type="submit" disabled={loading}>
+            {loading ? "Creando cuenta..." : "Crear cuenta"}
+          </button>
+        </form>
+
+        <p className="register-footer">
+          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+        </p>
       </div>
-    </section>
+    </AuthLayout>
   );
 }

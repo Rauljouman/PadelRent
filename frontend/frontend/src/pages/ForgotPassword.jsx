@@ -1,81 +1,90 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowLeft, Mail, Send } from "lucide-react";
 import { authApi } from "../api/authApi";
+import AuthLayout from "../components/AuthLayout";
+import "../styles/ForgotPassword.css";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [resetLink, setResetLink] = useState("");
-  const [mensaje, setMensaje] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
-  const solicitarReset = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setLoading(true);
     setError("");
     setMensaje("");
-    setResetLink("");
+
+    if (!email.trim()) {
+      setError("El email es obligatorio.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const data = await authApi.forgotPassword({ email });
+      await authApi.forgotPassword(email.trim());
 
-      setMensaje(data.mensaje || "Si el email existe, recibirás instrucciones para recuperar tu contraseña.");
-      setResetLink(data.resetLink || "");
+      setMensaje(
+        "Si el email existe, recibirás un enlace para restablecer tu contraseña."
+      );
     } catch (error) {
-      setError(error.message || "No se pudo generar el enlace de recuperación.");
+      setError(
+        error.message ||
+          "No se pudo generar el enlace de recuperación. Inténtalo de nuevo."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: 40, maxWidth: 450, margin: "0 auto" }}>
-      <h1>Recuperar contraseña</h1>
-
-      <p>Introduce tu email para generar un enlace de recuperación.</p>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {mensaje && <p style={{ color: "green" }}>{mensaje}</p>}
-
-      {resetLink && (
-        <div
-          style={{
-            border: "1px solid #ddd",
-            padding: 12,
-            borderRadius: 8,
-            marginBottom: 16,
-          }}
-        >
-          <p>
-            <strong>Enlace de recuperación:</strong>
-          </p>
-
-          <Link to={resetLink.replace("http://localhost:5173", "")}>
-            Ir a cambiar contraseña
-          </Link>
+    <AuthLayout>
+      <div className="forgot-card">
+        <div className="forgot-card__icon">
+          <Mail size={24} />
         </div>
-      )}
 
-      <form onSubmit={solicitarReset}>
-        <label>Email</label>
+        <div className="forgot-card__header">
+          <h1>Recuperar contraseña</h1>
+          <p>
+            Introduce tu email y te enviaremos un enlace para crear una nueva
+            contraseña.
+          </p>
+        </div>
 
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ display: "block", width: "100%", marginBottom: 12 }}
-        />
+        {error && <div className="forgot-error">{error}</div>}
+        {mensaje && <div className="forgot-success">{mensaje}</div>}
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Generando..." : "Generar enlace"}
-        </button>
-      </form>
+        <form className="forgot-form" onSubmit={handleSubmit}>
+          <div className="forgot-form__group">
+            <label htmlFor="email">Email</label>
 
-      <p>
-        <Link to="/login">Volver al login</Link>
-      </p>
-    </div>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@email.com"
+              autoComplete="email"
+              required
+            />
+          </div>
+
+          <button className="forgot-submit" type="submit" disabled={loading}>
+            <Send size={17} />
+            {loading ? "Generando enlace..." : "Generar enlace"}
+          </button>
+        </form>
+
+        <Link to="/login" className="forgot-back">
+          <ArrowLeft size={17} />
+          Volver al login
+        </Link>
+      </div>
+    </AuthLayout>
   );
 }
