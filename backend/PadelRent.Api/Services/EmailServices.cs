@@ -55,7 +55,7 @@ public class EmailService
 
         var secureSocketOptions = smtpPort == 465
             ? SecureSocketOptions.SslOnConnect
-            : SecureSocketOptions.StartTls;
+            : SecureSocketOptions.StartTlsWhenAvailable;
 
         try
         {
