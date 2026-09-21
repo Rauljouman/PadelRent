@@ -43,9 +43,6 @@ export default function ForgotPassword() {
   return (
     <AuthLayout>
       <div className="forgot-card">
-        <div className="forgot-card__icon">
-          <Mail size={24} />
-        </div>
 
         <div className="forgot-card__header">
           <h1>Recuperar contraseña</h1>

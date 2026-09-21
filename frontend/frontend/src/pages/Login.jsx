@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import AuthLayout from "../components/AuthLayout";
 import "../styles/Login.css";
@@ -55,9 +55,6 @@ export default function Login() {
   return (
     <AuthLayout>
       <div className="login-card">
-        <div className="login-card__icon">
-          <LogIn size={24} />
-        </div>
 
         <div className="login-card__header">
           <h1>Bienvenido de nuevo</h1>
