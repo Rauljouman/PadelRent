@@ -1,0 +1,168 @@
+.admin-pistas-page {
+  width: 100%;
+}
+
+.admin-pistas-header {
+  margin-bottom: 32px;
+}
+
+.admin-pistas-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #3f7f5f;
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.admin-pistas-back:hover {
+  text-decoration: underline;
+}
+
+.admin-pistas-header h1 {
+  margin: 0 0 10px;
+  font-size: 34px;
+  color: #17251d;
+}
+
+.admin-pistas-header p {
+  margin: 0;
+  max-width: 720px;
+  color: #607064;
+  line-height: 1.6;
+}
+
+.admin-pistas-status {
+  margin-bottom: 20px;
+}
+
+.admin-pistas-error {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background-color: #ffecec;
+  color: #a62b2b;
+  border: 1px solid #ffc9c9;
+}
+
+.admin-pistas-loading {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background-color: #f4f7f4;
+  color: #526158;
+  border: 1px solid #dce6dd;
+}
+
+.admin-pistas-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.admin-pista-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8e3;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 12px 30px rgba(20, 48, 30, 0.08);
+}
+
+.admin-pista-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.admin-pista-card h3 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  color: #17251d;
+}
+
+.admin-pista-card p {
+  margin: 0;
+  color: #66736a;
+  font-size: 14px;
+}
+
+.admin-pista-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-pista-badge--active {
+  background-color: #e8f7ee;
+  color: #287a45;
+}
+
+.admin-pista-badge--inactive {
+  background-color: #ffecec;
+  color: #b83232;
+}
+
+.admin-pista-button {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-pista-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(20, 48, 30, 0.12);
+}
+
+.admin-pista-button:active {
+  transform: translateY(0);
+}
+
+.admin-pista-button--disable {
+  background-color: #17251d;
+  color: #ffffff;
+}
+
+.admin-pista-button--enable {
+  background-color: #3f7f5f;
+  color: #ffffff;
+}
+
+@media (max-width: 1100px) {
+  .admin-pistas-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .admin-pistas-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-pistas-header h1 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-pistas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-pistas-header h1 {
+    font-size: 25px;
+  }
+
+  .admin-pista-card {
+    padding: 18px;
+  }
+}

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+
 import { authApi } from "../api/authApi";
 
 const AuthContext = createContext();
@@ -27,16 +28,36 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    const data = await authApi.login(email, password);
+    const data = await authApi.login({
+      email,
+      password,
+    });
 
-    const userData =
-      data.usuario ||
-      data.user ||
-      data.usuarioDto ||
-      {
-        nombre: data.nombre,
-        email: data.email,
-      };
+    const userData = {
+      id: data.usuarioId,
+      nombre: data.nombre,
+      email: data.email,
+      rol: data.rol,
+    };
+
+    localStorage.setItem("padelrent_token", data.token);
+    localStorage.setItem("padelrent_user", JSON.stringify(userData));
+
+    setToken(data.token);
+    setUser(userData);
+
+    return data;
+  };
+
+  const register = async (formData) => {
+    const data = await authApi.register(formData);
+
+    const userData = {
+      id: data.usuarioId,
+      nombre: data.nombre,
+      email: data.email,
+      rol: data.rol,
+    };
 
     localStorage.setItem("padelrent_token", data.token);
     localStorage.setItem("padelrent_user", JSON.stringify(userData));
@@ -74,6 +95,7 @@ export function AuthProvider({ children }) {
         user,
         isAuthenticated,
         login,
+        register,
         logout,
         updateUser,
       }}
