@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5206/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 async function adminRequest(endpoint, options = {}) {
   const token = localStorage.getItem("padelrent_token");
@@ -35,5 +35,17 @@ export const adminApi = {
   desactivarPista: (id) =>
     adminRequest(`/admin/pistas/${id}/desactivar`, {
       method: "PUT",
+    }),
+
+  promoverAdmin: (email) =>
+    adminRequest("/admin/usuarios/promover-admin", {
+      method: "PUT",
+      body: JSON.stringify({ email }),
+    }),
+
+  quitarAdmin: (email) =>
+    adminRequest("/admin/usuarios/quitar-admin", {
+      method: "PUT",
+      body: JSON.stringify({ email }),
     }),
 };
