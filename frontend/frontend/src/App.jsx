@@ -121,7 +121,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout>
-              <AdminPistas />
+              <AdminPanel />
             </AppLayout>
           </ProtectedRoute>
         }
