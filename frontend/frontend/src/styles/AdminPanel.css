@@ -39,18 +39,18 @@
 .admin-card {
   background-color: #ffffff;
   border: 1px solid #e2e8e3;
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 12px 30px rgba(20, 48, 30, 0.08);
+  box-shadow: 0 10px 24px rgba(20, 48, 30, 0.06);
 }
 
 .admin-card--danger {
-  border-color: #ffd6d6;
+  border-color: #ead2d2;
 }
 
 .admin-card h2 {
   margin: 0 0 8px;
-  font-size: 23px;
+  font-size: 22px;
   color: #17251d;
 }
 
@@ -58,6 +58,7 @@
   margin: 0 0 18px;
   color: #607064;
   line-height: 1.5;
+  font-size: 15px;
 }
 
 .admin-form {
@@ -67,41 +68,68 @@
 
 .admin-form input {
   flex: 1;
+  min-width: 220px;
+  height: 44px;
   border: 1px solid #d8e2da;
-  border-radius: 12px;
-  padding: 13px 14px;
-  font-size: 15px;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: #17251d;
+  background-color: #ffffff;
   outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .admin-form input:focus {
-  border-color: #3f7f5f;
-  box-shadow: 0 0 0 3px rgba(63, 127, 95, 0.12);
+  border-color: #5c7f69;
+  box-shadow: 0 0 0 3px rgba(92, 127, 105, 0.12);
 }
 
-.admin-form button {
-  border: none;
-  border-radius: 12px;
-  padding: 13px 18px;
-  background-color: #3f7f5f;
-  color: #ffffff;
-  font-weight: 700;
+.admin-button {
+  height: 44px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0 18px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-.admin-form button:hover {
+.admin-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(20, 48, 30, 0.12);
 }
 
-.admin-button-danger {
-  background-color: #b83232 !important;
+.admin-button:active {
+  transform: translateY(0);
 }
 
-.admin-button-danger:hover {
-  box-shadow: 0 10px 20px rgba(184, 50, 50, 0.15) !important;
+.admin-button--primary {
+  background-color: #2f5e46;
+  color: #ffffff;
+}
+
+.admin-button--primary:hover {
+  background-color: #284f3b;
+  box-shadow: 0 8px 18px rgba(47, 94, 70, 0.18);
+}
+
+.admin-button--danger {
+  background-color: #ffffff;
+  color: #a13737;
+  border-color: #d8b3b3;
+}
+
+.admin-button--danger:hover {
+  background-color: #fff5f5;
+  border-color: #c98f8f;
+  box-shadow: 0 8px 18px rgba(161, 55, 55, 0.12);
 }
 
 .admin-success-message {
@@ -110,7 +138,7 @@
   background-color: #e8f7ee;
   color: #287a45;
   border: 1px solid #c8ebd5;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 20px;
 }
 
@@ -158,9 +186,9 @@
 .admin-pista-card {
   background-color: #ffffff;
   border: 1px solid #e2e8e3;
-  border-radius: 18px;
+  border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 12px 30px rgba(20, 48, 30, 0.08);
+  box-shadow: 0 10px 24px rgba(20, 48, 30, 0.06);
 }
 
 .admin-pista-card__top {
@@ -206,17 +234,21 @@
 
 .admin-pista-button {
   width: 100%;
-  border: none;
-  border-radius: 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
   padding: 12px 14px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .admin-pista-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(20, 48, 30, 0.12);
 }
 
 .admin-pista-button:active {
@@ -228,9 +260,19 @@
   color: #ffffff;
 }
 
+.admin-pista-button--disable:hover {
+  background-color: #22352a;
+  box-shadow: 0 8px 18px rgba(23, 37, 29, 0.14);
+}
+
 .admin-pista-button--enable {
-  background-color: #3f7f5f;
+  background-color: #2f5e46;
   color: #ffffff;
+}
+
+.admin-pista-button--enable:hover {
+  background-color: #284f3b;
+  box-shadow: 0 8px 18px rgba(47, 94, 70, 0.18);
 }
 
 @media (max-width: 1100px) {
@@ -256,7 +298,8 @@
     flex-direction: column;
   }
 
-  .admin-form button {
+  .admin-form input,
+  .admin-button {
     width: 100%;
   }
 }
@@ -270,11 +313,8 @@
     font-size: 25px;
   }
 
+  .admin-card,
   .admin-pista-card {
     padding: 18px;
-  }
-
-  .admin-card {
-    padding: 20px;
   }
 }

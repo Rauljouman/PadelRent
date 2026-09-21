@@ -19,3 +19,4 @@ dist/
 
 # VS Code opcional
 .vscode/
+.env

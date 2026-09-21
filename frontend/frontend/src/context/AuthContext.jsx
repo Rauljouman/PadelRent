@@ -1,8 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
-
 import { authApi } from "../api/authApi";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => {
@@ -28,10 +27,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    const data = await authApi.login({
-      email,
-      password,
-    });
+    const data = await authApi.login(email, password);
 
     const userData = {
       id: data.usuarioId,

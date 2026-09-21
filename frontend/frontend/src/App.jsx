@@ -20,7 +20,7 @@ import Profile from "./pages/Profile";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
-import AdminPanel from "./pages/AdminPistas";
+import AdminPanel from "./pages/AdminPanel";
 
 function AppRoutes() {
   return (

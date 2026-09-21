@@ -53,12 +53,12 @@ export default function AdminPanel() {
       const data = await adminApi.promoverAdmin(adminEmail);
 
       setAdminMessage(
-        `${data.nombre} ahora es administrador. Tendrá que cerrar sesión y volver a entrar.`
+        `${data.nombre} ahora tiene permisos de administrador. Tendrá que cerrar sesión y volver a entrar.`
       );
 
       setAdminEmail("");
     } catch (error) {
-      setError(error.message || "No se pudo convertir el usuario en admin");
+      setError(error.message || "No se pudo conceder el permiso de administrador");
     }
   };
 
@@ -72,12 +72,12 @@ export default function AdminPanel() {
       const data = await adminApi.quitarAdmin(removeAdminEmail);
 
       setAdminMessage(
-        `${data.nombre} ya no es administrador. Tendrá que cerrar sesión y volver a entrar.`
+        `${data.nombre} ya no tiene permisos de administrador. Tendrá que cerrar sesión y volver a entrar.`
       );
 
       setRemoveAdminEmail("");
     } catch (error) {
-      setError(error.message || "No se pudo quitar el rol de admin");
+      setError(error.message || "No se pudo retirar el permiso de administrador");
     }
   };
 
@@ -101,8 +101,8 @@ export default function AdminPanel() {
             <h2>Añadir administrador</h2>
 
             <p>
-              Escribe el email de un usuario registrado para convertirlo en
-              administrador.
+              Escribe el email de un usuario registrado para concederle permisos
+              de administrador.
             </p>
           </div>
 
@@ -115,7 +115,12 @@ export default function AdminPanel() {
               required
             />
 
-            <button type="submit">Convertir en admin</button>
+            <button
+              type="submit"
+              className="admin-button admin-button--primary"
+            >
+              Conceder permisos
+            </button>
           </form>
         </section>
 
@@ -124,8 +129,8 @@ export default function AdminPanel() {
             <h2>Quitar administrador</h2>
 
             <p>
-              Escribe el email de un administrador para volver a dejarlo como
-              usuario normal.
+              Escribe el email de un administrador para retirarle los permisos y
+              dejarlo como usuario normal.
             </p>
           </div>
 
@@ -138,8 +143,11 @@ export default function AdminPanel() {
               required
             />
 
-            <button type="submit" className="admin-button-danger">
-              Quitar admin
+            <button
+              type="submit"
+              className="admin-button admin-button--danger"
+            >
+              Retirar permisos
             </button>
           </form>
         </section>
