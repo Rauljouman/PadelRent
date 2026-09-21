@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using PadelRent.Api.Enums;
 
 namespace PadelRent.Api.Models;
 
@@ -29,5 +30,8 @@ public class Usuario
     public DateTime? PasswordResetTokenExpiracion { get; set; }
 
     public string? ResetPasswordToken { get; set; }
+    
     public DateTime? ResetPasswordTokenExpiracion { get; set; }
+
+    public RolUsuario Rol { get; set; } = RolUsuario.Usuario;
 }

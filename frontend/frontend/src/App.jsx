@@ -20,6 +20,7 @@ import Profile from "./pages/Profile";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
+import AdminPistas from "./pages/AdminPistas";
 
 function AppRoutes() {
   return (
@@ -37,8 +38,6 @@ function AppRoutes() {
       <Route path="/terms" element={<Terms />} />
 
       <Route path="/privacy" element={<Privacy />} />
-
-      <Route path="*" element={<NotFound />} />
 
       <Route
         path="/disponibilidad"
@@ -117,7 +116,18 @@ function AppRoutes() {
         }
       />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path="/admin/pistas"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <AdminPistas />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

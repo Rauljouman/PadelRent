@@ -118,7 +118,8 @@ public class AuthController : ControllerBase
             Token = token,
             UsuarioId = usuario.Id,
             Nombre = usuario.Nombre,
-            Email = usuario.Email
+            Email = usuario.Email,
+            Rol = usuario.Rol.ToString()
         });
     }
 
@@ -156,7 +157,8 @@ public class AuthController : ControllerBase
             Token = token,
             UsuarioId = usuario.Id,
             Nombre = usuario.Nombre,
-            Email = usuario.Email
+            Email = usuario.Email,
+            Rol = usuario.Rol.ToString()
         });
     }
 
