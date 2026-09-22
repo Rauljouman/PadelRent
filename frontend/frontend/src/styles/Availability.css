@@ -7,9 +7,10 @@
   margin: 0 auto;
 }
 
+/* HEADER */
+
 .availability-header {
   margin-bottom: 24px;
-
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -39,16 +40,13 @@
   border-radius: 12px;
   background: #ffffff;
   color: #40536c;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-
   transition:
     background-color 0.2s ease,
     color 0.2s ease,
@@ -72,12 +70,10 @@
 .availability-filters {
   margin-bottom: 22px;
   padding: 18px;
-
   background: #ffffff;
   border: 1px solid #dbe4ec;
   border-radius: 18px;
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.045);
-
   display: grid;
   grid-template-columns: minmax(260px, 1fr) minmax(320px, 1fr);
   gap: 18px;
@@ -85,11 +81,9 @@
 
 .availability-filter label {
   margin-bottom: 9px;
-
   display: flex;
   align-items: center;
   gap: 8px;
-
   color: #07111f;
   font-size: 14px;
   font-weight: 600;
@@ -103,15 +97,12 @@
   width: 100%;
   min-height: 44px;
   padding: 0 14px;
-
   border: 1px solid #dbe4ec;
   border-radius: 13px;
   background: #ffffff;
-
   color: #07111f;
   font-size: 15px;
   outline: none;
-
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -125,11 +116,9 @@
 .duration-selector {
   min-height: 44px;
   padding: 4px;
-
   border: 1px solid #dbe4ec;
   border-radius: 13px;
   background: #ffffff;
-
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 4px;
@@ -140,11 +129,9 @@
   border-radius: 10px;
   background: transparent;
   color: #607089;
-
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
@@ -227,11 +214,12 @@
   border-radius: 18px;
   background: #ffffff;
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.045);
-
   display: grid;
-  grid-template-columns: 46px 1fr;
-  gap: 14px;
 
+  /* Una sola columna: ya no existe la etiqueta verde de la hora */
+  grid-template-columns: minmax(0, 1fr);
+
+  gap: 14px;
   transition:
     transform 0.2s ease,
     border-color 0.2s ease,
@@ -244,27 +232,13 @@
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.075);
 }
 
-.time-card__hour {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  background: #e3f5eb;
-  color: #198754;
-
-  display: grid;
-  place-items: center;
-
-  font-size: 14px;
-  font-weight: 700;
-}
-
 .time-card__content {
   min-width: 0;
+  width: 100%;
 }
 
 .time-card__top {
   margin-bottom: 12px;
-
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -301,21 +275,17 @@
 .court-button {
   min-height: 34px;
   padding: 0 13px;
-
   border: 1px solid #dbe4ec;
   border-radius: 11px;
   background: #ffffff;
   color: #07111f;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-
   font-size: 14px;
   font-weight: 550;
   cursor: pointer;
-
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
@@ -350,17 +320,14 @@
   right: 34px;
   bottom: 22px;
   z-index: 70;
-
   max-width: 1068px;
   margin: 0 auto;
   padding: 14px 16px;
-
   border: 1px solid rgba(25, 135, 84, 0.22);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(14px);
   box-shadow: 0 18px 42px rgba(15, 23, 42, 0.14);
-
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -388,16 +355,13 @@
   border-radius: 12px;
   background: #198754;
   color: #ffffff;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-
   font-size: 14px;
   font-weight: 650;
   cursor: pointer;
-
   transition:
     background-color 0.2s ease,
     transform 0.2s ease;
@@ -459,12 +423,6 @@
     padding: 16px;
   }
 
-  .time-card__hour {
-    width: fit-content;
-    min-width: 58px;
-    height: 38px;
-  }
-
   .time-card__top {
     flex-direction: column;
     gap: 8px;
@@ -488,7 +446,6 @@
     left: 14px;
     right: 14px;
     bottom: 86px;
-
     flex-direction: column;
     align-items: stretch;
   }

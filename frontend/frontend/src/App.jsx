@@ -21,6 +21,8 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
+import LegalNotice from "./pages/LegalNotice"
+import Cookies from "./pages/Cookies"
 
 function AppRoutes() {
   return (
@@ -38,6 +40,10 @@ function AppRoutes() {
       <Route path="/terms" element={<Terms />} />
 
       <Route path="/privacy" element={<Privacy />} />
+
+      <Route path="/aviso-legal" element={<LegalNotice />} />
+
+      <Route path="/cookies" element={<Cookies />} />
 
       <Route
         path="/disponibilidad"

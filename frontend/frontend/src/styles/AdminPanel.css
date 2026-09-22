@@ -291,7 +291,9 @@
   }
 
   .admin-panel-header h1 {
-    font-size: 28px;
+    margin: 0 0 10px;
+    font-size: 34px;
+    color: #17251d;
   }
 
   .admin-form {
@@ -310,11 +312,25 @@
   }
 
   .admin-panel-header h1 {
-    font-size: 25px;
+    margin: 0 0 6px;
+    color: #07111f;
+    font-size: 32px;
+    line-height: 1.1;
+    font-weight: 650;
+    letter-spacing: -0.03em;
   }
 
   .admin-card,
   .admin-pista-card {
     padding: 18px;
+  }
+  
+  .admin-form input {
+    box-sizing: border-box;
+    height: 52px;
+    min-height: 52px;
+    padding: 0 16px;
+    font-size: 16px;
+    border-radius: 10px;
   }
 }

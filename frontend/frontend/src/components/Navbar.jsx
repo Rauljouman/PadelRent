@@ -45,7 +45,7 @@ export default function Navbar() {
 
           <NavLink to="/admin/pistas" className={getLinkClass}>
             <User size={18} />
-            <span>Panel administrador</span>
+            <span>Panel admin</span>
           </NavLink>
         </nav>
       </div>

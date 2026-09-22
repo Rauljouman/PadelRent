@@ -84,21 +84,13 @@ export default function AdminPanel() {
   return (
     <div className="admin-panel-page">
       <div className="admin-panel-header">
-        <span className="admin-panel-eyebrow">Panel de administración</span>
-
-        <h1>Admin Panel</h1>
-
-        <p>
-          Desde aquí puedes gestionar las pistas y los permisos de administrador.
-          Si una pista está desactivada, no aparecerá en disponibilidad y no se
-          podrá reservar.
-        </p>
+        <h1>Panel de administrador</h1>
       </div>
 
       <div className="admin-actions-grid">
         <section className="admin-card">
           <div>
-            <h2>Añadir administrador</h2>
+            <h1>Añadir administrador</h1>
 
             <p>
               Escribe el email de un usuario registrado para concederle permisos

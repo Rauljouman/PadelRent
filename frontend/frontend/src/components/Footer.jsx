@@ -12,9 +12,9 @@ export default function Footer() {
         </div>
 
         <div>
-          <Link to="/terms">Aviso legal</Link>
+          <Link to="/aviso-legal">Aviso legal</Link>
           <span>·</span>
-          <Link to="/privacy">Cookies</Link>
+          <Link to="/cookies">Cookies</Link>
         </div>
       </div>
 

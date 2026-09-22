@@ -182,9 +182,6 @@ export default function Availability() {
                   className="time-card"
                   key={`${horario.horaInicio}-${horario.horaFin}`}
                 >
-                  <div className="time-card__hour">
-                    {formatHora(horario.horaInicio)}
-                  </div>
 
                   <div className="time-card__content">
                     <div className="time-card__top">
